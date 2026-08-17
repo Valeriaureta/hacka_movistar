@@ -138,6 +138,24 @@ Antes de declarar el MVP como "listo para pitch":
 4. **Siempre documentar** decisiones de arquitectura en `docs/` o en el README del `app/`.
 5. **Consultar `docs/business_context.md` y `docs/nbo_strategy.md`** antes de tomar decisiones de alcance del MVP.
 
+### 4.1. Auditoría de Código con Ponytail
+
+El Director debe apoyarse del skill **Ponytail** para mantener el código del MVP limpio, minimal y libre de over-engineering. Esto es crítico en un hackathon donde el tiempo es escaso y cada línea cuenta.
+
+**Herramientas a utilizar:**
+
+| Comando | Cuándo usarlo |
+|---------|--------------|
+| `/ponytail-audit` | Después de cada milestone (API lista, UI lista, integración) para escanear el codebase completo y detectar código eliminable, dependencias innecesarias o abstracciones especulativas. |
+| `/ponytail-review` | Al revisar PRs o cambios específicos de los agentes Backend/Frontend, para detectar over-engineering puntual. |
+| `/ponytail` | Al asignar tareas nuevas a los programadores, para forzar la solución más simple que funcione (YAGNI). |
+
+**Criterios de auditoría:**
+- ¿Se reinventó algo que stdlib/framework ya provee?
+- ¿Hay dependencias que podrían eliminarse?
+- ¿Existen abstracciones creadas "por si acaso" que no se usan hoy?
+- ¿El código podría ser más corto sin perder claridad?
+
 ---
 
 ## 📖 5. Documentación de Referencia Obligatoria
