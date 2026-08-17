@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movistar Smart Personalization | NBO & Movistar Total</title>
+  <meta name="description" content="Motor predictivo de personalización comercial, Next Best Offer y convergencia Movistar Total para asesores y canales digitales.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/variables.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+</head>
+<body>
+  <!-- Header / Navbar -->
+  <header class="navbar">
+    <div class="brand-container">
+      <a href="#" class="brand-logo">
+        <div class="m-badge">M</div>
+        <span>Movistar <span style="font-weight: 400; color: var(--movistar-blue);">Personalization</span></span>
+      </a>
+      <span class="brand-subtitle">NBO Engine 2.0</span>
+    </div>
+
+    <nav class="nav-links">
+      <button class="nav-item active" data-tab="advisor">
+        <span>👤</span>
+        <span>Visor Asesor (DITO)</span>
+      </button>
+      <button class="nav-item" data-tab="simulator">
+        <span>⚡</span>
+        <span>Simulador Scoring</span>
+      </button>
+      <button class="nav-item" data-tab="catalog">
+        <span>📦</span>
+        <span>Catálogo Ofertas</span>
+      </button>
+      <button class="nav-item" data-tab="dashboard">
+        <span>📊</span>
+        <span>Dashboard Directivo</span>
+      </button>
+    </nav>
+
+    <div class="header-status">
+      <div class="status-dot"></div>
+      <span>Modelo Logístico Activo</span>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-container">
+    
+    <!-- View 1: Advisor Commercial Cockpit -->
+    <section id="view-advisor" class="view-section active">
+      <div class="advisor-grid">
+        <!-- Sidebar / Client Search -->
+        <aside id="sidebar-search-container">
+          <!-- Inyectado dinámicamente -->
+        </aside>
+
+        <!-- Main Dossier & NBO Area -->
+        <div>
+          <!-- Client Profile Header -->
+          <div id="client-profile-container">
+            <!-- Inyectado dinámicamente -->
+          </div>
+
+          <!-- NBO Top-1 and Rebates -->
+          <div id="nbo-cards-container">
+            <!-- Inyectado dinámicamente -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- View 2: Real-Time Scoring Simulator -->
+    <section id="view-simulator" class="view-section">
+      <!-- Inyectado dinámicamente -->
+    </section>
+
+    <!-- View 3: Commercial Offer Catalog -->
+    <section id="view-catalog" class="view-section">
+      <!-- Inyectado dinámicamente -->
+    </section>
+
+    <!-- View 4: Executive KPI Dashboard -->
+    <section id="view-dashboard" class="view-section">
+      <!-- Inyectado dinámicamente -->
+    </section>
+
+  </main>
+
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>

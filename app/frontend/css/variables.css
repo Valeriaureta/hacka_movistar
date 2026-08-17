@@ -1,0 +1,54 @@
+:root {
+  /* Movistar Brand Colors */
+  --movistar-blue: #019DF4;
+  --movistar-blue-dark: #0070B8;
+  --movistar-blue-light: #E5F6FF;
+  --movistar-navy: #081B2B;
+  --movistar-slate: #0F283F;
+  --movistar-card-bg: #14324F;
+  
+  /* Semantic Accent Colors */
+  --color-success: #00C853;
+  --color-success-bg: rgba(0, 200, 83, 0.12);
+  --color-warning: #FFB300;
+  --color-warning-bg: rgba(255, 179, 0, 0.12);
+  --color-danger: #FF5252;
+  --color-danger-bg: rgba(255, 82, 82, 0.12);
+  --color-purple: #7C4DFF;
+  --color-purple-bg: rgba(124, 77, 255, 0.12);
+
+  /* Neutrals & Surfaces */
+  --bg-primary: #071524;
+  --bg-surface: #0C2136;
+  --bg-card: rgba(15, 40, 65, 0.75);
+  --bg-card-hover: rgba(20, 52, 82, 0.85);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(1, 157, 244, 0.4);
+  
+  /* Typography Colors */
+  --text-primary: #FFFFFF;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --text-highlight: #38BDF8;
+
+  /* Typography */
+  --font-family-base: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  
+  /* Shadows & Glassmorphism */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 20px rgba(1, 157, 244, 0.3);
+  
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
