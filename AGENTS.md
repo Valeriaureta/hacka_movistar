@@ -76,7 +76,8 @@ d:\hacka_movistar\
 │   │   ├── 01_director_fullstack.md    # Director: coordinación, arquitectura, deploy Vercel
 │   │   ├── 02_programador_backend.md   # Backend: datos, ML, API, reglas de negocio
 │   │   ├── 03_programador_frontend.md  # Frontend: UX/UI, responsiveness, visualización
-│   │   └── 04_analista_negocio.md      # Analista: pitch, validación, alertas de desalineamiento
+│   │   ├── 04_analista_negocio.md      # Analista: pitch, validación, alertas de desalineamiento
+│   │   └── 05_analista_ciberseguridad.md # Ciberseguridad: fuga de secretos, cookies, blindaje
 │   ├── data_dictionary.md      # Diccionario detallado de variables y tipos
 │   ├── eda_findings.md         # Resumen de hallazgos del análisis exploratorio
 │   ├── model_documentation.md  # Arquitectura del modelo y especificación del pipeline
@@ -128,4 +129,5 @@ Para optimizar el balance entre capacidad de razonamiento, precisión técnica, 
 | **Programador Backend** | Arquitectura de datos, integración ML (`inferencia_modelo.py`), API REST | **Gemini 3.1 Pro** | `Low` | [`docs/agents/02_programador_backend.md`](docs/agents/02_programador_backend.md) |
 | **Programador Frontend** | Diseño UX/UI, visualización de datos, responsiveness | **Gemini 3.1 Pro** | `Low` | [`docs/agents/03_programador_frontend.md`](docs/agents/03_programador_frontend.md) |
 | **Analista de Negocio** | Pitch de 3 min, validación de negocio, alertas de desalineamiento | **Gemini 3.7 Flash** | `High` | [`docs/agents/04_analista_negocio.md`](docs/agents/04_analista_negocio.md) |
+| **Analista de Ciberseguridad** | Vigilancia de secretos, cookies, protección de código y SAST | **Gemini 3.1 Pro** | `High` | [`docs/agents/05_analista_ciberseguridad.md`](docs/agents/05_analista_ciberseguridad.md) |
 
