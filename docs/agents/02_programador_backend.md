@@ -104,6 +104,13 @@ El backend debe generar o servir argumentos persuasivos basados en:
 | `elegible_mt == True` | "Al unificar servicios, recibe factura única y bono duplicador de GB" |
 | `dias_mora_prom` bajo | "Su excelente historial de pago le permite acceder a planes premium" |
 
+### 2.5. Gestión de Bugs y Estabilidad Backend
+
+El Backend es responsable de diagnosticar y corregir errores en la capa de datos y servidor:
+- **Errores de Conexión:** Solucionar problemas de puertos, CORS, o caídas del servidor local/remoto (ej. `uvicorn`).
+- **Manejo de Excepciones:** Asegurar que fallos en `inferencia_modelo.py` o lectura de CSVs no tumben la aplicación, sino que devuelvan errores controlados al frontend.
+- **Trazabilidad:** Implementar logs descriptivos para identificar qué componente o input provocó el fallo.
+
 ---
 
 ## 📡 3. Endpoints de la API

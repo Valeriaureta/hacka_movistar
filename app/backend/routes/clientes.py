@@ -12,7 +12,8 @@ def list_clientes(
     search: Optional[str] = None,
     elegible_mt: Optional[bool] = None,
     departamento: Optional[str] = None,
-    riesgo: Optional[str] = None
+    riesgo: Optional[str] = None,
+    canal: Optional[str] = None
 ):
     """Lista clientes con paginación y filtros rápidos."""
     return get_clientes_paginated(
@@ -21,7 +22,8 @@ def list_clientes(
         search=search,
         elegible_mt=elegible_mt,
         departamento=departamento,
-        riesgo=riesgo
+        riesgo=riesgo,
+        canal=canal
     )
 
 @router.get("/{cliente_id}")

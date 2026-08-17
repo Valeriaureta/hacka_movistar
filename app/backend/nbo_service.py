@@ -24,33 +24,33 @@ def enriquecer_explicabilidad(cliente: Dict[str, Any], oferta: Dict[str, Any], r
     # 2. ¿Por qué a este cliente?
     motivos = []
     if es_mt and elegible_mt:
-        motivos.append("Cliente convergente elegible: cuenta con móvil e internet por separado")
+        motivos.append("Cuenta con móvil e internet por separado (ideal para unificar y ahorrar)")
         if ahorro_pct > 0:
-            motivos.append(f"Ahorro directo de {ahorro_pct}% unificando su factura")
+            motivos.append(f"Ahorro directo de {ahorro_pct}% en su factura mensual")
     elif es_mt:
-        motivos.append("Propensión alta a convergencia para blindaje y reducción de churn")
+        motivos.append("Oportunidad de migración a Movistar Total con bono de gigas duplicados")
     
     if consumo_datos > 20:
-        motivos.append(f"Alto consumo de datos ({consumo_datos:.1f} GB/mes) requiere mayor bolsa")
+        motivos.append(f"Alto consumo de datos ({consumo_datos:.1f} GB/mes)")
     
     if antiguedad >= 24:
-        motivos.append(f"Antigüedad destacada ({antiguedad} meses)")
+        motivos.append(f"Cliente con {antiguedad} meses de fidelidad")
         
     if meses_moroso == 0:
-        motivos.append("Excelente comportamiento de pago sin morosidad")
+        motivos.append("Buen historial de pago")
     elif meses_moroso >= 2:
-        motivos.append("Historial de mora reciente: se recomienda oferta controlada sin sobrefacturación")
+        motivos.append("Presenta días de mora (ofrecer plan controlado)")
 
-    por_que_este_cliente = ". ".join(motivos) + "." if motivos else "Perfil compatible con el segmento objetivo de la oferta."
+    por_que_este_cliente = ". ".join(motivos) + "." if motivos else "Perfil ideal para este plan comercial."
 
     # 3. ¿Por qué canal y en qué momento?
     canal_usado = cliente.get("canal_mas_usado") or canal or "Digital"
     if str(canal_usado).lower() in ["digital", "app"]:
-        canal_sugerido = f"Canal Digital / App Mi Movistar (Cliente digitalizado con uso activo de app)"
+        canal_sugerido = "Canal Digital / App Mi Movistar"
     elif str(canal_usado).lower() in ["call in", "call out", "call"]:
-        canal_sugerido = f"Atención Telefónica / Call Center (Mayor contactabilidad observada en llamadas)"
+        canal_sugerido = "Llamada Telefónica (Call Center)"
     else:
-        canal_sugerido = f"Tienda / Punto Presencial (Preferencia por canal asistido presencial)"
+        canal_sugerido = "Tienda Presencial"
 
     # 4. ¿Qué speech comercial usar?
     speech_comercial = generar_speech_comercial(cliente, oferta, str(canal_usado))

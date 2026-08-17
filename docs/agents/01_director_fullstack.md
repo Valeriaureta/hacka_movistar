@@ -48,7 +48,14 @@ d:\hacka_movistar\
 └── AGENTS.md                      # Directivas maestras
 ```
 
-### 2.3. Stack Tecnológico Recomendado
+### 2.3. Gestión de Bugs y Aseguramiento de Calidad (QA)
+
+Como Director Full-Stack, eres responsable de la estabilidad general del sistema:
+- **Triage y Resolución:** Identificar rápidamente si un bug reportado pertenece al backend (ej. fallos en la API o ML) o al frontend (ej. problemas de renderizado o colores).
+- **Regresiones Visuales:** Supervisar que las actualizaciones no rompan la coherencia visual (modo claro/oscuro) ni el espaciado.
+- **Validación E2E:** Asegurar que las correcciones en una capa no afecten la integración con la otra.
+
+### 2.4. Stack Tecnológico Recomendado
 
 | Capa | Tecnología | Justificación |
 |------|-----------|---------------|
@@ -58,7 +65,7 @@ d:\hacka_movistar\
 | **Despliegue** | Vercel | Deploy instantáneo con preview por branch |
 | **Datos** | CSVs en `data/` cargados en memoria o vía API | MVP ligero sin base de datos externa |
 
-### 2.4. Despliegue a Vercel
+### 2.5. Despliegue a Vercel
 
 El Director es responsable de:
 

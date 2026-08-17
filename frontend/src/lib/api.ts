@@ -15,6 +15,7 @@ export async function getClientes(params: {
   elegible_mt?: boolean;
   departamento?: string;
   riesgo?: string;
+  canal?: string;
 } = {}): Promise<ClientesPaginatedResponse> {
   const query = new URLSearchParams();
   if (params.page) query.append('page', params.page.toString());
@@ -23,6 +24,7 @@ export async function getClientes(params: {
   if (params.elegible_mt !== undefined) query.append('elegible_mt', String(params.elegible_mt));
   if (params.departamento) query.append('departamento', params.departamento);
   if (params.riesgo) query.append('riesgo', params.riesgo);
+  if (params.canal) query.append('canal', params.canal);
 
   const res = await fetch(`${API_BASE}/api/clientes?${query.toString()}`, {
     cache: 'no-store',

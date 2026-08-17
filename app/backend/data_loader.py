@@ -52,7 +52,8 @@ def get_clientes_paginated(
     search: Optional[str] = None,
     elegible_mt: Optional[bool] = None,
     departamento: Optional[str] = None,
-    riesgo: Optional[str] = None
+    riesgo: Optional[str] = None,
+    canal: Optional[str] = None
 ) -> Dict[str, Any]:
     """Retorna clientes paginados con filtros rápidos."""
     offset = (page - 1) * limit
@@ -71,6 +72,17 @@ def get_clientes_paginated(
     if departamento and departamento.strip() != "":
         where_clauses.append("LOWER(ubicacion_departamento) = LOWER(?)")
         params.append(departamento.strip())
+
+    if canal and canal.strip() != "" and canal.lower() != "all":
+        if canal.lower() in ["call", "call in", "call out", "llamada"]:
+            where_clauses.append("(LOWER(canal_mas_usado) LIKE '%call%' OR LOWER(canal_mas_usado) LIKE '%llamada%')")
+        elif canal.lower() in ["digital", "app"]:
+            where_clauses.append("(LOWER(canal_mas_usado) LIKE '%digital%' OR LOWER(canal_mas_usado) LIKE '%app%')")
+        elif canal.lower() in ["tienda", "presencial"]:
+            where_clauses.append("(LOWER(canal_mas_usado) LIKE '%tienda%' OR LOWER(canal_mas_usado) LIKE '%presencial%')")
+        else:
+            where_clauses.append("LOWER(canal_mas_usado) = LOWER(?)")
+            params.append(canal.strip())
 
     if riesgo:
         if riesgo.lower() == "alto":

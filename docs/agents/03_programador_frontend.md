@@ -87,6 +87,13 @@ La interfaz está diseñada para el **asesor comercial** que opera bajo presión
 | `ElegibilidadBadge` | Badge visual para elegible MT / riesgo crediticio | `elegible_mt`, `meses_moroso` |
 | `OfertaCatalogo` | Card del catálogo con precio, ahorro, GB | `GET /api/ofertas` |
 
+### 3.3. Gestión de Bugs y Consistencia Visual
+
+El Frontend debe actuar rápida y proactivamente ante defectos en la UI:
+- **Regresiones Visuales:** Prestar especial atención a bugs de coloreado (ej. contrastes y legibilidad al alternar entre modo Claro/Oscuro).
+- **Refinamiento de Layout:** Solucionar solapamientos o "muros de texto" mediante el uso adecuado de espaciado (`gap`, `padding`, `margin`), evitando alterar tamaños de fuente indiscriminadamente.
+- **Monitoreo Continuo:** Evaluar visualmente el resultado de cada cambio para garantizar que la interfaz sea cómoda y satisfactoria al ojo humano.
+
 ---
 
 ## 🎨 4. Directivas de Diseño
