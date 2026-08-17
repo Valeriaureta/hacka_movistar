@@ -72,6 +72,11 @@ d:\hacka_movistar\
 │   └── raw/                    # Datasets crudos inmutables (clientes, ofertas, historial)
 │
 ├── docs/                       # Documentación técnica, metodológica y de negocio
+│   ├── agents/                 # Marcos de acción para agentes especializados del MVP
+│   │   ├── 01_director_fullstack.md    # Director: coordinación, arquitectura, deploy Vercel
+│   │   ├── 02_programador_backend.md   # Backend: datos, ML, API, reglas de negocio
+│   │   ├── 03_programador_frontend.md  # Frontend: UX/UI, responsiveness, visualización
+│   │   └── 04_analista_negocio.md      # Analista: pitch, validación, alertas de desalineamiento
 │   ├── data_dictionary.md      # Diccionario detallado de variables y tipos
 │   ├── eda_findings.md         # Resumen de hallazgos del análisis exploratorio
 │   ├── model_documentation.md  # Arquitectura del modelo y especificación del pipeline
