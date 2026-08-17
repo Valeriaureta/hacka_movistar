@@ -2,6 +2,7 @@
 
 > **Rol:** Especialista en diseño de interfaz, experiencia de usuario y visualización de información. Construye la capa visual del MVP que consume la API del backend.  
 > **Prioridad:** Que el asesor comercial de Movistar pueda buscar un cliente, ver su recomendación Top-3, entender el porqué (explicabilidad) y leer el speech comercial en menos de 30 segundos.  
+> **Modelo Predeterminado:** Gemini 3.1 Pro (Thinking: Low)  
 > **Gobierno:** Todas las directivas de [`AGENTS.md`](../AGENTS.md) aplican sin excepción.
 
 ---

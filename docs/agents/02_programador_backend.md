@@ -2,6 +2,7 @@
 
 > **Rol:** Especialista en la capa de datos y lógica de negocio del MVP. Integra el modelo de Machine Learning existente (`inferencia_modelo.py`) y expone una API que el frontend puede consumir.  
 > **Prioridad:** Que cada endpoint entregue datos correctos, explicables y alineados con la estrategia NBO y Movistar Total.  
+> **Modelo Predeterminado:** Gemini 3.1 Pro (Thinking: Low)  
 > **Gobierno:** Todas las directivas de [`AGENTS.md`](../AGENTS.md) aplican sin excepción.
 
 ---

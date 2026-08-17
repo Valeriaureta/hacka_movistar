@@ -115,3 +115,17 @@ Cuando un agente reciba solicitudes de mejora o extensiones (por ejemplo, constr
 2. **Utilizar el entorno virtual** configurado (`venv`) con dependencias de `requirements.txt`.
 3. **Asegurar compatibilidad con el pipeline de inferencia** (`inferencia_modelo.py`).
 4. **Documentar siempre los entregables** en `docs/` y mantener actualizados los enlaces relativos en formato markdown.
+
+---
+
+## 🤖 7. Asignación de Modelos Predeterminados para los Agentes
+
+Para optimizar el balance entre capacidad de razonamiento, precisión técnica, latencia y costo, cada agente especializado tiene asignado un modelo y nivel de thinking predeterminado:
+
+| Agente | Rol Principal | Modelo Predeterminado | Thinking Budget | Marco de Acción |
+| :--- | :--- | :--- | :---: | :--- |
+| **Director Full-Stack** | Coordinación, arquitectura, Vercel MCP, auditoría Ponytail | **Gemini 3.1 Pro** | `High` | [`docs/agents/01_director_fullstack.md`](docs/agents/01_director_fullstack.md) |
+| **Programador Backend** | Arquitectura de datos, integración ML (`inferencia_modelo.py`), API REST | **Gemini 3.1 Pro** | `Low` | [`docs/agents/02_programador_backend.md`](docs/agents/02_programador_backend.md) |
+| **Programador Frontend** | Diseño UX/UI, visualización de datos, responsiveness | **Gemini 3.1 Pro** | `Low` | [`docs/agents/03_programador_frontend.md`](docs/agents/03_programador_frontend.md) |
+| **Analista de Negocio** | Pitch de 3 min, validación de negocio, alertas de desalineamiento | **Gemini 3.7 Flash** | `High` | [`docs/agents/04_analista_negocio.md`](docs/agents/04_analista_negocio.md) |
+

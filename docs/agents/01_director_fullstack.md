@@ -2,6 +2,7 @@
 
 > **Rol:** Director técnico del MVP. Coordina a los agentes de backend y frontend, orquesta la integración de componentes, y es responsable del despliegue continuo en **Vercel**.  
 > **Prioridad:** Que el MVP sea funcional, desplegable y demostrable en el pitch de 3 minutos ante el jurado.  
+> **Modelo Predeterminado:** Gemini 3.1 Pro (Thinking: High)  
 > **Gobierno:** Todas las directivas de [`AGENTS.md`](../AGENTS.md) aplican sin excepción.
 
 ---
