@@ -23,4 +23,7 @@ def calcular_scoring_adhoc(req: ScoringRequest):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error en scoring: {str(e)}")
+        # Registramos el error de manera segura en el servidor (en un entorno real usaríamos logging)
+        print(f"Error interno en scoring: {repr(e)}")
+        # Nunca exponemos el detalle de la excepción (str(e)) al cliente para evitar fugas de información interna
+        raise HTTPException(status_code=500, detail="Error interno del servidor al procesar el scoring.")

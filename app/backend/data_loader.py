@@ -10,25 +10,25 @@ _con = duckdb.connect(database=":memory:")
 def init_db():
     """Inicializa vistas y tablas en DuckDB para latencia <5ms."""
     # Tabla clientes
-    _con.execute(f"""
+    _con.cursor().execute(f"""
         CREATE OR REPLACE TABLE clientes AS 
         SELECT * FROM read_csv_auto('{CLIENTES_CSV.as_posix()}', header=True);
     """)
-    _con.execute("CREATE INDEX IF NOT EXISTS idx_cliente_id ON clientes(cliente_id);")
+    _con.cursor().execute("CREATE INDEX IF NOT EXISTS idx_cliente_id ON clientes(cliente_id);")
 
     # Tabla ofertas
-    _con.execute(f"""
+    _con.cursor().execute(f"""
         CREATE OR REPLACE TABLE ofertas AS 
         SELECT * FROM read_csv_auto('{OFERTAS_CSV.as_posix()}', header=True);
     """)
 
     # Tabla scoring precalculado top 3
     if SCORING_TOP3_CSV.exists():
-        _con.execute(f"""
+        _con.cursor().execute(f"""
             CREATE OR REPLACE TABLE scoring_top3 AS 
             SELECT * FROM read_csv_auto('{SCORING_TOP3_CSV.as_posix()}', header=True);
         """)
-        _con.execute("CREATE INDEX IF NOT EXISTS idx_scoring_cliente ON scoring_top3(cliente_id);")
+        _con.cursor().execute("CREATE INDEX IF NOT EXISTS idx_scoring_cliente ON scoring_top3(cliente_id);")
 
 # Cargar base de datos al importar el módulo
 init_db()
@@ -84,7 +84,7 @@ def get_clientes_paginated(
 
     # Conteo total
     count_query = f"SELECT COUNT(*) FROM clientes WHERE {where_str}"
-    total_count = _con.execute(count_query, params).fetchone()[0]
+    total_count = _con.cursor().execute(count_query, params).fetchone()[0]
 
     # Datos
     query = f"""
@@ -99,7 +99,7 @@ def get_clientes_paginated(
         ORDER BY cliente_id ASC
         LIMIT {limit} OFFSET {offset}
     """
-    df = _con.execute(query, params).fetchdf()
+    df = _con.cursor().execute(query, params).fetchdf()
     records = _sanitize_records(df.to_dict(orient="records"))
 
     return {
@@ -113,7 +113,7 @@ def get_clientes_paginated(
 def get_cliente_by_id(cliente_id: str) -> Optional[Dict[str, Any]]:
     """Obtiene el perfil 360 de un cliente específico."""
     query = "SELECT * FROM clientes WHERE UPPER(cliente_id) = UPPER(?)"
-    df = _con.execute(query, [cliente_id.strip()]).fetchdf()
+    df = _con.cursor().execute(query, [cliente_id.strip()]).fetchdf()
     if df.empty:
         return None
     records = _sanitize_records(df.to_dict(orient="records"))
@@ -127,13 +127,13 @@ def get_ofertas_catalog(tipo_oferta: Optional[str] = None) -> List[Dict[str, Any
         query += " WHERE tipo_oferta = ?"
         params.append(tipo_oferta)
     query += " ORDER BY precio_mensual ASC"
-    df = _con.execute(query, params).fetchdf()
+    df = _con.cursor().execute(query, params).fetchdf()
     return _sanitize_records(df.to_dict(orient="records"))
 
 def get_oferta_by_id(oferta_id: str) -> Optional[Dict[str, Any]]:
     """Obtiene información de una oferta específica."""
     query = "SELECT * FROM ofertas WHERE UPPER(oferta_id) = UPPER(?)"
-    df = _con.execute(query, [oferta_id.strip()]).fetchdf()
+    df = _con.cursor().execute(query, [oferta_id.strip()]).fetchdf()
     if df.empty:
         return None
     records = _sanitize_records(df.to_dict(orient="records"))
@@ -153,14 +153,14 @@ def get_top3_scoring(cliente_id: str) -> List[Dict[str, Any]]:
         WHERE UPPER(s.cliente_id) = UPPER(?)
         ORDER BY s.ranking_predictivo ASC
     """
-    df = _con.execute(query, [cliente_id.strip()]).fetchdf()
+    df = _con.cursor().execute(query, [cliente_id.strip()]).fetchdf()
     if df.empty:
         return []
     return _sanitize_records(df.to_dict(orient="records"))
 
 def get_analytics_kpis() -> Dict[str, Any]:
     """Genera KPIs y métricas de negocio para el dashboard directivo."""
-    client_kpis = _con.execute("""
+    client_kpis = _con.cursor().execute("""
         SELECT 
             COUNT(*) as total_clientes,
             SUM(CASE WHEN elegible_mt THEN 1 ELSE 0 END) as elegibles_mt,
@@ -172,7 +172,7 @@ def get_analytics_kpis() -> Dict[str, Any]:
         FROM clientes
     """).fetchdf().to_dict(orient="records")[0]
 
-    canales = _con.execute("""
+    canales = _con.cursor().execute("""
         SELECT 
             COALESCE(canal_mas_usado, 'No Determinado') as canal,
             COUNT(*) as cantidad,
@@ -182,7 +182,7 @@ def get_analytics_kpis() -> Dict[str, Any]:
         ORDER BY cantidad DESC
     """).fetchdf().to_dict(orient="records")
 
-    departamentos = _con.execute("""
+    departamentos = _con.cursor().execute("""
         SELECT 
             ubicacion_departamento as departamento,
             COUNT(*) as cantidad,
@@ -195,7 +195,7 @@ def get_analytics_kpis() -> Dict[str, Any]:
         LIMIT 7
     """).fetchdf().to_dict(orient="records")
 
-    top_ofertas_global = _con.execute("""
+    top_ofertas_global = _con.cursor().execute("""
         SELECT 
             nombre_oferta,
             oferta_es_mt,
