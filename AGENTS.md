@@ -10,8 +10,13 @@ Este archivo define el marco contextual, las restricciones inviolables y las dir
 
 ## 🛑 1. Reglas Inviolables (CRITICAL RESTRICTIONS)
 
-1. **NO TOCAR EL CÓDIGO DE `EDA/`:**
-   - Queda estrictamente prohibido modificar, sobreescribir o alterar los notebooks dentro del directorio `EDA/` (`EDA_campañas.ipynb`, `EDA_catalogo_ofertas.ipynb`, `EDA_clientes.ipynb`, `EDA_integrado_target.ipynb`). Solo se permite su lectura e inspección.
+1. **MODIFICACIÓN CONTROLADA DE `EDA/`:**
+   - Los notebooks dentro del directorio `EDA/` (`EDA_campañas.ipynb`, `EDA_catalogo_ofertas.ipynb`, `EDA_clientes.ipynb`, `EDA_integrado_target.ipynb`) son archivos sensibles de análisis exploratorio.
+   - **Antes de cualquier modificación**, el agente debe:
+     1. Describir con claridad **qué** se va a modificar y **por qué**.
+     2. Indicar las celdas o secciones específicas afectadas.
+     3. **Solicitar y obtener autorización expresa del usuario** antes de proceder.
+   - Sin autorización explícita, solo se permite la lectura e inspección.
 2. **NO TOCAR EL CÓDIGO DE `inferencia_modelo.py`:**
    - Queda estrictamente prohibido modificar o refactorizar el archivo raíz `inferencia_modelo.py` y `Modelo/inferencia_modelo.py`. El esquema de entrada (33 columnas `COLUMNAS_MODELO`) y la función `calcular_score` son contratos de interfaz inmutables.
 3. **RESPETAR LA ESTRUCTURA DE DATOS ([Cookiecutter Data Science](https://cookiecutter-data-science.drivendata.org/)):**
@@ -74,7 +79,7 @@ d:\hacka_movistar\
 │   ├── business_context.md     # Marco contextual, métricas operativas y visión estratégica
 │   └── output_modelo.pdf       # Reporte ejecutivo del desafío
 │
-├── EDA/                        # [INMUTABLE] Notebooks de exploración y análisis
+├── EDA/                        # [MODIFICACIÓN CONTROLADA] Notebooks de exploración y análisis
 ├── Modelo/                     # [INMUTABLE] Scripts y artefactos de inferencia
 ├── inferencia_modelo.py        # [INMUTABLE] Función principal calcular_score()
 ├── requirements.txt            # Dependencias del proyecto
