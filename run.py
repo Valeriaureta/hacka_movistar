@@ -6,9 +6,9 @@ from app.backend.config import HOST, PORT
 
 def run_all():
     print("=" * 60)
-    print("🚀 PLATAFORMA MOVISTAR PERSONALIZACIÓN COMERCIAL INTELIGENTE")
-    print(f"📡 Backend FastAPI / DuckDB activo en: http://{HOST}:{PORT}")
-    print("💻 Frontend Next.js disponible en:     http://localhost:3000 (cd frontend && npm run dev)")
+    print("[SERVER] PLATAFORMA MOVISTAR PERSONALIZACIÓN COMERCIAL INTELIGENTE")
+    print(f"[BACKEND] FastAPI / DuckDB activo en: http://{HOST}:{PORT}")
+    print("[FRONTEND] Next.js disponible en:     http://localhost:3000 (cd frontend && npm run dev)")
     print("=" * 60)
 
     # Iniciar servidor backend FastAPI

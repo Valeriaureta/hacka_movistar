@@ -28,6 +28,7 @@ ENV/
 dist/
 build/
 .vercel
+catboost_info/
 
 # IDEs & OS
 .vscode/
@@ -36,3 +37,5 @@ build/
 *.swo
 .DS_Store
 Thumbs.db
+
+.vercel

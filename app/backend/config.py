@@ -18,5 +18,5 @@ SCORING_TOP3_CSV = PROCESSED_DATA_DIR / "scoring_top3_predictivo.csv"
 STATIC_DIR = BASE_DIR / "app" / "frontend"
 
 # Configuración del servidor
-PORT = int(os.getenv("PORT", "8000"))
+PORT = int(os.getenv("PORT", "5555"))
 HOST = os.getenv("HOST", "127.0.0.1")
