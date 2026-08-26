@@ -1,0 +1,68 @@
+# ==========================================
+# Secretos y Variables de Entorno (CRÍTICO)
+# ==========================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ==========================================
+# Python / Backend
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+backend/venv/
+backend/env/
+.venv/
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ==========================================
+# Frontend / React / Vite
+# ==========================================
+node_modules/
+frontend_react/node_modules/
+frontend_react/dist/
+frontend_react/dist-ssr/
+frontend_react/.vite/
+*.local
+
+# ==========================================
+# Datos pesados y logs temporales
+# ==========================================
+data/interim/*.jsonl
+data/interim/*.csv
+# Datasets masivos (>15MB) para evitar exceder límites de GitHub:
+data/raw/historial_campanias.csv
+data/raw/dataset_clientes.csv
+data/processed/scoring_top3_predictivo.csv
+
+# ==========================================
+# IDEs y Sistema Operativo
+# ==========================================
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

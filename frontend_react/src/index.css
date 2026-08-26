@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-heading: 'Outfit', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* Movistar Brand Tokens */
+    --movistar-blue: #005C84;
+    --movistar-sky: #00C6D7;
+    --movistar-green: #7AB800;
+    --movistar-white: #FFFFFF;
+    --movistar-gray: #515559;
+
+    /* Dark Mode Defaults (Modern Dark Navy with Movistar Touches) */
+    --bg-app: #040c18;
+    --bg-header: rgba(5, 16, 32, 0.88);
+    --bg-panel: rgba(0, 92, 132, 0.12);
+    --bg-panel-solid: #09192f;
+    --bg-card: rgba(8, 25, 48, 0.65);
+    --bg-input: #061324;
+    --border-subtle: rgba(0, 198, 215, 0.15);
+    --border-card: rgba(255, 255, 255, 0.08);
+    --text-primary: #FFFFFF;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+    --accent-glow: rgba(0, 198, 215, 0.25);
+  }
+
+  :root.light, body.light {
+    /* Light Mode (Clean Movistar Corporate Day) */
+    --bg-app: #F4F7FB;
+    --bg-header: rgba(255, 255, 255, 0.95);
+    --bg-panel: rgba(255, 255, 255, 0.9);
+    --bg-panel-solid: #FFFFFF;
+    --bg-card: #FFFFFF;
+    --bg-input: #F8FAFC;
+    --border-subtle: rgba(0, 92, 132, 0.18);
+    --border-card: rgba(0, 92, 132, 0.12);
+    --text-primary: #002D42;
+    --text-secondary: #515559;
+    --text-muted: #7E8B9B;
+    --accent-glow: rgba(0, 92, 132, 0.12);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+  
+  code, pre {
+    font-family: var(--font-mono);
+  }
+}
+
+/* Custom Movistar Brand Glassmorphism & Cards */
+.glass-panel {
+  background: var(--bg-panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.3s ease;
+}
+
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-card);
+  transition: all 0.3s ease;
+}
+
+/* Movistar Glow Utilities */
+.glow-movistar-sky {
+  box-shadow: 0 0 30px -4px rgba(0, 198, 215, 0.35);
+}
+
+.glow-movistar-green {
+  box-shadow: 0 0 30px -4px rgba(122, 184, 0, 0.4);
+}
+
+.glow-movistar-blue {
+  box-shadow: 0 0 35px -5px rgba(0, 92, 132, 0.45);
+}
+
+.glow-blue {
+  box-shadow: 0 0 35px -5px rgba(0, 198, 215, 0.3);
+}
+
+.glow-green {
+  box-shadow: 0 0 35px -5px rgba(122, 184, 0, 0.3);
+}
+
+.glow-red {
+  box-shadow: 0 0 35px -5px rgba(239, 68, 68, 0.35);
+}
+
+/* Custom Scrollbar styled with Movistar Colors */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-app);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 92, 132, 0.4);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00C6D7;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.88;
+    transform: scale(1.02);
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s ease-in-out infinite;
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 12s linear infinite;
+}
