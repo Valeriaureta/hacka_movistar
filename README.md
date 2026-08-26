@@ -116,20 +116,38 @@ flowchart TD
 
 ```
 Sistema propuesto/
-├── .env                                 # Variables de entorno y API Keys (Gemini / OpenRouter)
+├── .env.example                         # Plantilla de variables de entorno sin secretos
+├── .gitignore                           # Exclusión de credenciales, venv y node_modules
+├── requirements.txt                     # Dependencias oficiales de Python
+├── Logo.svg                             # Isotipo corporativo oficial
 ├── guia_desafio_NBO_movistar.md         # Ficha técnica y requerimientos del desafío
 ├── README.md                            # Documentación técnica integral del sistema
 │
-├── backend/                             # Módulo de Servidor y Lógica de Negocio
+├── backend/                             # Módulo de Servidor y Lógica de Negocio (FastAPI)
 │   ├── __init__.py                      # Módulo Python
 │   ├── main.py                          # Entrada de la API FastAPI, CORS y endpoints raíz
-│   ├── nbo_router.py                    # Orquestador NBO, carga de datos y reglas de negocio
+│   ├── nbo_router.py                    # Orquestador NBO, scoring al vuelo y reglas de negocio
+│   ├── dashboard_router.py              # Endpoints de métricas E2E y registro de interacciones
 │   ├── inferencia.py                    # Inferencia ML y generador de Explainable AI (XAI)
-│   ├── ai_service.py                    # Servicio en cascada para IA Generativa (OpenRouter/Gemini/Offline)
-│   ├── ai_router.py                     # Endpoints REST para Pitch comercial y Rebates
-│   └── dashboard_router.py              # Endpoints de métricas E2E y registro de interacciones
+│   ├── inferencia_modelo.py             # Script de inferencia y scoring batch
+│   ├── run_backend.bat                  # Script de inicio rápido en Windows
+│   ├── Modelo/
+│   │   └── modelo_propension_v2_candidato.joblib # Artefacto supervisado entrenado
+│   ├── Motor/
+│   │   ├── motor_oficial.py             # Motor oficial NBO de producción
+│   │   └── motor_reglas_negocio.py      # Guardrails comerciales y reglas heurísticas
+│   └── Legacy_AI/
+│       ├── ai_service.py                # Servicio en cascada para IA Generativa (OpenRouter/Gemini/Offline)
+│       └── ai_router.py                 # Endpoints REST para Pitch comercial y Rebates
 │
-└── frontend_react/                      # Aplicación Cliente React 19
+├── data/                                # Capa de Almacenamiento y Datasets
+│   ├── raw/catalogo_ofertas_entrega.csv # Catálogo maestro de ofertas comerciales
+│   ├── processed/modelo_v2/             # Métricas de entrenamiento y evaluación de modelos
+│   ├── interim/                         # Logs de auditoría e interacción local
+│   ├── external/diccionario_datos_participantes.md # Diccionario de datos del reto
+│   └── interacciones_e2e.csv            # Trazabilidad y persistencia de ventas/contactos
+│
+└── frontend_react/                      # Aplicación Cliente (React 19 + Tailwind CSS 4 + Vite 8)
     ├── package.json                     # Definición de scripts y dependencias
     ├── vite.config.js                   # Configuración del servidor Vite y plugins
     ├── index.html                       # Entry point HTML con tipografía corporativa
@@ -233,7 +251,7 @@ Sistema propuesto/
 
 ### Paso 1: Configurar y Levantar el Backend (FastAPI)
 
-1. Abrir una terminal en la carpeta del backend:
+1. Abrir una terminal en la carpeta raíz del proyecto:
    ```bash
    cd "Sistema propuesto"
    ```
@@ -243,14 +261,23 @@ Sistema propuesto/
    python -m venv venv
    # En Windows:
    .\venv\Scripts\activate
+   # En Linux/macOS:
+   source venv/bin/activate
    ```
 
 3. Instalar las dependencias de Python:
    ```bash
-   pip install -r ../requirements.txt
+   pip install -r requirements.txt
    ```
 
-4. Iniciar el servidor FastAPI con Uvicorn:
+4. Configurar el archivo de variables de entorno:
+   ```bash
+   # Copiar la plantilla de ejemplo
+   cp .env.example .env
+   # Configurar las API keys (Gemini / OpenRouter) si se desea
+   ```
+
+5. Iniciar el servidor FastAPI con Uvicorn:
    ```bash
    uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
    ```
