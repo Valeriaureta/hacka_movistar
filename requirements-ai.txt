@@ -1,0 +1,29 @@
+# ============================================================
+# requirements-ai.txt — Dependencias opcionales de IA Generativa
+# ============================================================
+# El MVP desplegado en Vercel NO carga estas librerías: el router
+# Legacy_AI está comentado en backend/main.py y el bundle serverless
+# se mantiene ligero.
+#
+# Instalar solo para habilitar en local la cascada generativa
+# (pitch comercial y rebate) y la explicabilidad SHAP:
+#
+#   pip install -r requirements.txt -r requirements-ai.txt
+#
+# Requiere GEMINI_API_KEY y/o OPENROUTER_API_KEY en .env
+# ============================================================
+
+# --- IA Generativa (SDK NUEVO — reemplaza google-generativeai) ---
+# El paquete anterior "google-generativeai" está deprecado desde mayo 2025.
+# google-genai usa client = genai.Client() en lugar de genai.configure(api_key=...)
+google-genai>=1.0.0,<2.0.0
+
+# --- Clientes HTTP (para OpenRouter) ---
+requests>=2.32.0,<3.0.0
+httpx>=0.28.0,<0.29.0        # recomendado para uso asíncrono con FastAPI
+
+# --- Variables de entorno ---
+python-dotenv>=1.0.1,<2.0.0
+
+# --- Explicabilidad XAI ---
+shap>=0.47.0,<0.48.0         # requiere numpy >= 2.0

@@ -86,10 +86,7 @@ export function CanalCallIn() {
     try {
       const res = await api.evaluarNBO(rawClient.cliente_id, 'Call In', motivosSeleccionados);
       if (res && res.motor_nbo) {
-        setSelectedCliente(prev => ({
-          ...prev,
-          motor_nbo: res.motor_nbo
-        }));
+        setSelectedCliente(res);
       }
     } catch (e) {
       console.error("Error evaluando NBO:", e);
@@ -100,8 +97,22 @@ export function CanalCallIn() {
   };
 
   const handleResponderMT = async (valor) => {
-    setFeedbackMsg({ type: 'success', text: `Preferencia MT '${valor}' enviada al motor.` });
-    setTimeout(() => setFeedbackMsg(null), 3000);
+    if (!selectedCliente?.recomendacion_id) {
+      setFeedbackMsg({ type: 'error', text: 'No existe una recomendación activa para actualizar.' });
+      return;
+    }
+    setIsEvaluating(true);
+    try {
+      const res = await api.enviarPreferenciaMT(selectedCliente.recomendacion_id, valor);
+      if (!res?.motor_nbo) throw new Error('El motor no devolvió una recomendación actualizada.');
+      setSelectedCliente(res);
+      setFeedbackMsg({ type: 'success', text: 'Preferencia registrada y Top-3 recalculado.' });
+    } catch (error) {
+      setFeedbackMsg({ type: 'error', text: error.message });
+    } finally {
+      setIsEvaluating(false);
+      setTimeout(() => setFeedbackMsg(null), 3000);
+    }
   };
 
   return (
@@ -425,7 +436,7 @@ export function CanalCallIn() {
                     </div>
 
                     {/* Pregunta Inteligente MT */}
-                    {preguntaMT && preguntaMT.estado === 'PENDIENTE' && (
+                    {preguntaMT && (preguntaMT.requiere_pregunta || preguntaMT.estado === 'PENDIENTE') && (
                       <div className="bg-indigo-950/60 border border-indigo-500/50 rounded-xl p-4 mb-4">
                         <h3 className="text-white font-bold text-xs mb-2 flex items-center gap-2">
                           <User className="w-4 h-4 text-indigo-400" />
@@ -436,10 +447,14 @@ export function CanalCallIn() {
                           {preguntaMT.opciones.map((opc, idx) => (
                             <button 
                               key={idx} 
-                              onClick={() => handleResponderMT(opc.valor)}
+                              onClick={() => handleResponderMT(opc.preferencia || opc.valor)}
                               className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition cursor-pointer"
                             >
-                              {opc.texto}
+                              {opc.texto || ({
+                                pagar_menos: 'Pagar menos',
+                                mas_gigas: 'Tener más gigas',
+                                datos_ilimitados: 'Datos ilimitados',
+                              }[opc.preferencia]) || opc.nombre_oferta}
                             </button>
                           ))}
                         </div>

@@ -3,8 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 
-from nbo_router import NBORouter, DataLoader
-from dashboard_router import router as dashboard_router
+try:
+    from .nbo_router import NBORouter, DataLoader
+    from .dashboard_router import router as dashboard_router
+except ImportError:  # Permite ejecutar también desde el directorio backend/
+    from nbo_router import NBORouter, DataLoader
+    from dashboard_router import router as dashboard_router
 # from Legacy_AI.ai_router import router as ai_router
 
 app = FastAPI(
@@ -37,7 +41,8 @@ def root():
         "status": "online",
         "service": "Movi Nexo API — Personalización NBO 2.0",
         "version": "2.0.0",
-        "model": "modelo_propension_v2_candidato.joblib"
+        "model": "modelo_propension_v2_candidato.joblib",
+        "runtime": loader.runtime_info(),
     }
 
 @app.post("/api/auth/login")
@@ -51,7 +56,7 @@ def login(creds: AuthLogin):
 @app.get("/api/clientes")
 def list_clientes(limit: int = Query(20, ge=1, le=100), canal: str = Query("Tienda")):
     sample = loader.get_clientes_sample(limit=limit)
-    items = [router_nbo.enriquecer_cliente(cli, canal=canal) for cli in sample]
+    items = router_nbo.enriquecer_clientes(sample, canal=canal)
     return {
         "total": len(items),
         "items": items
@@ -72,11 +77,12 @@ def get_ofertas():
 @app.get("/api/model/status")
 def model_status():
     return {
-        "modelo_cargado": True,
+        "modelo_cargado": router_nbo.ruta_modelo.is_file(),
         "tipo_algoritmo": "Regresión Logística Calibrada (V2 Candidato)",
         "features_total": 31,
         "exclusiones": ["oferta_id", "monto_facturado_prom_6m"],
-        "latencia_promedio_ms": 3.8
+        "ruta_modelo": str(router_nbo.ruta_modelo),
+        "runtime": loader.runtime_info(),
     }
 
 class PreferenciaMTRequest(BaseModel):

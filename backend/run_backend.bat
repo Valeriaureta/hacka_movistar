@@ -1,4 +1,5 @@
 @echo off
-echo Iniciando backend NBO v2 con Python 3.11...
-call venv\Scripts\activate.bat
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
+cd /d "%~dp0"
+echo Iniciando backend NBO v2...
+if exist "venv\Scripts\activate.bat" call "venv\Scripts\activate.bat"
+python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000

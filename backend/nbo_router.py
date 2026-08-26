@@ -1,19 +1,72 @@
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+import os
 import pandas as pd
 import uuid
 
-from Motor.motor_oficial import recomendar_top3, evaluar_oferta, recomendar_rebate
+try:
+    from .Motor.motor_oficial import (
+        recomendar_top3,
+        evaluar_oferta,
+        recomendar_rebate,
+        preparar_candidatos,
+        puntuar_candidatos,
+        finalizar_recomendacion,
+    )
+except ImportError:  # Permite ejecutar también desde el directorio backend/
+    from Motor.motor_oficial import (
+        recomendar_top3,
+        evaluar_oferta,
+        recomendar_rebate,
+        preparar_candidatos,
+        puntuar_candidatos,
+        finalizar_recomendacion,
+    )
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 DATA_RAW = BASE_DIR / "data" / "raw"
+DATA_PROCESSED = BASE_DIR / "data" / "processed"
+DEFAULT_CLIENTES_PATH = DATA_RAW / "dataset_clientes.csv"
+DEMO_CLIENTES_PATH = DATA_PROCESSED / "demo" / "dataset_clientes_demo.csv"
+
+
+def _valor_nativo(value: Any) -> Any:
+    """Convierte valores de pandas/numpy a tipos seguros para JSON."""
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except (TypeError, ValueError):
+        pass
+    return value.item() if hasattr(value, "item") else value
+
+
+def _registro_json(record: Dict[str, Any]) -> Dict[str, Any]:
+    return {key: _valor_nativo(value) for key, value in record.items()}
 
 class DataLoader:
     _instance = None
     
     def __init__(self):
-        # Usamos el dataset existente en Sistema propuesto/data
-        self.clientes_df = pd.read_csv(DATA_RAW / "dataset_clientes.csv")
+        configured_path = os.getenv("NBO_CLIENTES_PATH")
+        candidates = [
+            Path(configured_path).expanduser() if configured_path else None,
+            DEFAULT_CLIENTES_PATH,
+            DEMO_CLIENTES_PATH,
+        ]
+        self.clientes_path = next(
+            (path.resolve() for path in candidates if path and path.is_file()),
+            None,
+        )
+        if self.clientes_path is None:
+            raise FileNotFoundError(
+                "No se encontró el dataset de clientes. Coloque dataset_clientes.csv "
+                f"en '{DEFAULT_CLIENTES_PATH}' o defina NBO_CLIENTES_PATH."
+            )
+
+        self.data_mode = "completo" if self.clientes_path == DEFAULT_CLIENTES_PATH.resolve() else "demo_real"
+        self.clientes_df = pd.read_csv(self.clientes_path)
         self.ofertas_df = pd.read_csv(DATA_RAW / "catalogo_ofertas_entrega.csv")
         self._preparar_catalogos()
 
@@ -24,7 +77,18 @@ class DataLoader:
         return cls._instance
 
     def _preparar_catalogos(self):
-        self.ofertas_list = self.ofertas_df.to_dict(orient="records")
+        self.ofertas_list = [
+            _registro_json(record)
+            for record in self.ofertas_df.to_dict(orient="records")
+        ]
+
+    def runtime_info(self) -> Dict[str, Any]:
+        return {
+            "data_mode": self.data_mode,
+            "clientes_path": str(self.clientes_path),
+            "clientes_total": int(len(self.clientes_df)),
+            "ofertas_total": int(len(self.ofertas_df)),
+        }
 
     def get_cliente(self, query: str) -> Optional[Dict[str, Any]]:
         clean_q = str(query).strip().lower()
@@ -37,14 +101,17 @@ class DataLoader:
             try:
                 idx = int(clean_q)
                 if 0 <= idx < len(self.clientes_df):
-                    return self.clientes_df.iloc[idx].to_dict()
+                    return _registro_json(self.clientes_df.iloc[idx].to_dict())
             except ValueError:
                 pass
             return None
-        return match.iloc[0].to_dict()
+        return _registro_json(match.iloc[0].to_dict())
 
     def get_clientes_sample(self, limit: int = 50) -> List[Dict[str, Any]]:
-        return self.clientes_df.head(limit).to_dict(orient="records")
+        return [
+            _registro_json(record)
+            for record in self.clientes_df.head(limit).to_dict(orient="records")
+        ]
 
 class NBORouter:
     def __init__(self):
@@ -53,16 +120,40 @@ class NBORouter:
         self.sessions = {} # Memoria simple para stateful
         self.eventos = []
 
-    def crear_sesion(self, cliente_raw: Dict[str, Any], canal: str = "Tienda", contexto: Dict = None) -> Dict[str, Any]:
-        rec_id = str(uuid.uuid4())
-        ctx = contexto or {
+    @staticmethod
+    def contexto_demo(canal: str) -> Dict[str, Any]:
+        return {
             "escenario_simulado": True,
-            "consentimiento_comercial": True,
+            "consentimiento_comercial": True if canal.lower().replace("_", " ") == "call out" else None,
             "bloqueo_presion_activo": False,
             "reclamo_activo": False,
             "averia_activa": False,
-            "incidencia_en_interaccion": False
+            "incidencia_en_interaccion": False,
         }
+
+    def _respuesta_sesion(
+        self,
+        cliente_raw: Dict[str, Any],
+        canal: str,
+        contexto: Dict[str, Any],
+        recomendacion: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        rec_id = str(uuid.uuid4())
+        self.sessions[rec_id] = {
+            "cliente": cliente_raw,
+            "canal": canal,
+            "contexto": contexto,
+            "recomendacion": recomendacion,
+        }
+        return {
+            "recomendacion_id": rec_id,
+            "cliente": cliente_raw,
+            "motor_nbo": recomendacion,
+            "fuente_datos": self.loader.runtime_info(),
+        }
+
+    def crear_sesion(self, cliente_raw: Dict[str, Any], canal: str = "Tienda", contexto: Dict = None) -> Dict[str, Any]:
+        ctx = contexto or self.contexto_demo(canal)
         
         recomendacion = recomendar_top3(
             cliente=cliente_raw,
@@ -72,18 +163,61 @@ class NBORouter:
             ruta_modelo=self.ruta_modelo
         )
         
-        self.sessions[rec_id] = {
-            "cliente": cliente_raw,
-            "canal": canal,
-            "contexto": ctx,
-            "recomendacion": recomendacion
+        return self._respuesta_sesion(cliente_raw, canal, ctx, recomendacion)
+
+    def enriquecer_clientes(
+        self,
+        clientes_raw: List[Dict[str, Any]],
+        canal: str = "Tienda",
+    ) -> List[Dict[str, Any]]:
+        """Calcula varios clientes en una sola inferencia vectorizada."""
+        if not clientes_raw:
+            return []
+
+        contexto_por_id: Dict[str, Dict[str, Any]] = {}
+        exclusiones_por_id: Dict[str, List[Dict[str, Any]]] = {}
+        cliente_por_id = {str(cliente["cliente_id"]): cliente for cliente in clientes_raw}
+        candidatos = []
+
+        for cliente in clientes_raw:
+            cliente_id = str(cliente["cliente_id"])
+            contexto = self.contexto_demo(canal)
+            preparados, exclusiones, _ = preparar_candidatos(
+                cliente,
+                self.loader.ofertas_list,
+                canal=canal,
+                contexto=contexto,
+            )
+            candidatos.extend(preparados)
+            contexto_por_id[cliente_id] = contexto
+            exclusiones_por_id[cliente_id] = exclusiones
+
+        puntuados = puntuar_candidatos(candidatos, cliente_por_id, self.ruta_modelo)
+        puntuados_por_id: Dict[str, List[Dict[str, Any]]] = {
+            cliente_id: [] for cliente_id in cliente_por_id
         }
-        
-        return {
-            "recomendacion_id": rec_id,
-            "cliente": cliente_raw,
-            "motor_nbo": recomendacion
-        }
+        for candidato in puntuados:
+            puntuados_por_id[str(candidato["cliente_id"])].append(candidato)
+
+        respuestas = []
+        for cliente in clientes_raw:
+            cliente_id = str(cliente["cliente_id"])
+            recomendacion = finalizar_recomendacion(
+                cliente,
+                puntuados_por_id[cliente_id],
+                exclusiones_por_id[cliente_id],
+                canal,
+                contexto_por_id[cliente_id],
+            )
+            respuestas.append(
+                self._respuesta_sesion(
+                    cliente,
+                    canal,
+                    contexto_por_id[cliente_id],
+                    recomendacion,
+                )
+            )
+        return respuestas
 
     def actualizar_preferencia(self, rec_id: str, preferencia: str) -> Dict[str, Any]:
         if rec_id not in self.sessions:
@@ -105,7 +239,8 @@ class NBORouter:
         return {
             "recomendacion_id": rec_id,
             "cliente": ses["cliente"],
-            "motor_nbo": recomendacion
+            "motor_nbo": recomendacion,
+            "fuente_datos": self.loader.runtime_info(),
         }
 
     def registrar_evento(self, payload: Dict[str, Any]):

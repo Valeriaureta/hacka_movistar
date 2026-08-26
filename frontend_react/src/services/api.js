@@ -2,6 +2,18 @@ import { MOCK_CLIENTES, CATALOGO_OFERTAS } from '../data/mockData';
 
 export const api = {
   token: null,
+  mode: 'connecting',
+  lastError: null,
+
+  normalizeCliente(payload) {
+    if (!payload?.cliente) return payload;
+    return {
+      ...payload.cliente,
+      recomendacion_id: payload.recomendacion_id,
+      motor_nbo: payload.motor_nbo,
+      fuente_datos: payload.fuente_datos,
+    };
+  },
 
   async autoLogin() {
     try {
@@ -13,9 +25,28 @@ export const api = {
       if (res.ok) {
         const data = await res.json();
         this.token = data.access_token;
+        this.mode = 'motor';
+        this.lastError = null;
       }
     } catch (err) {
+      this.mode = 'mock';
+      this.lastError = err.message;
       console.warn("Backend FastAPI no disponible en puerto 8000, operando en modo Mock reactivo:", err.message);
+    }
+  },
+
+  async getModelStatus() {
+    try {
+      const res = await fetch('/api/model/status');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      this.mode = data.modelo_cargado ? 'motor' : 'error';
+      this.lastError = data.modelo_cargado ? null : 'El artefacto del modelo no está disponible';
+      return data;
+    } catch (e) {
+      this.mode = 'mock';
+      this.lastError = e.message;
+      return null;
     }
   },
 
@@ -27,9 +58,14 @@ export const api = {
       });
       if (res.ok) {
         const data = await res.json();
-        if (data && data.items && data.items.length > 0) return data.items;
+        if (data && data.items && data.items.length > 0) {
+          this.mode = 'motor';
+          return data.items.map(item => this.normalizeCliente(item));
+        }
       }
     } catch (e) {
+      this.mode = 'mock';
+      this.lastError = e.message;
       console.warn("Backend API /api/clientes no disponible, usando fallback:", e.message);
     }
     return MOCK_CLIENTES;
@@ -46,10 +82,12 @@ export const api = {
         headers: this.token ? { 'Authorization': `Bearer ${this.token}` } : {}
       });
       if (res.ok) {
-        return await res.json();
+        this.mode = 'motor';
+        return this.normalizeCliente(await res.json());
       }
     } catch (e) {
-      // Backend no disponible, proceder con fallback local
+      this.mode = 'mock';
+      this.lastError = e.message;
     }
 
     // Fallback en memoria mock
@@ -60,7 +98,7 @@ export const api = {
     );
     if (found) return found;
 
-    return MOCK_CLIENTES[0];
+    return null;
   },
 
   async getOfertas() {
@@ -166,7 +204,10 @@ export const api = {
         },
         body: JSON.stringify({ preferencia })
       });
-      if (res.ok) return await res.json();
+      if (res.ok) {
+        this.mode = 'motor';
+        return this.normalizeCliente(await res.json());
+      }
     } catch (e) {
       console.warn("Error enviando preferencia MT:", e.message);
     }
@@ -207,7 +248,10 @@ export const api = {
           contexto: contexto
         })
       });
-      if (res.ok) return await res.json();
+      if (res.ok) {
+        this.mode = 'motor';
+        return this.normalizeCliente(await res.json());
+      }
     } catch (e) {
       console.warn("Error al evaluar NBO en backend:", e.message);
     }
@@ -219,6 +263,7 @@ export const api = {
     });
 
     return {
+      source_mode: 'mock',
       motor_nbo: {
         decision_comercial: {
           accion: esIncidencia ? 'NO_OFRECER' : 'CONTACTAR',

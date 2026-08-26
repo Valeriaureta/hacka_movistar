@@ -200,6 +200,19 @@ def construir_vista_asesor(
         "rebate": "Rebate recomendado",
     }
 
+    return {
+        "etiqueta": labels.get(role, "Oferta compatible"),
+        "beneficio_principal": _beneficio_principal(oferta),
+        "razones": _razones_para_asesor(cliente, oferta),
+        "alertas": _alertas_para_asesor(warnings),
+        "speech": {
+            "texto": generar_speech_seguro(cliente, oferta, canal),
+            "tipo": "PLANTILLA_PARAMETRIZADA",
+            "requiere_revision_asesor": True,
+        },
+        "tipo_explicacion": "DESCRIPTIVA_NO_CAUSAL",
+    }
+
 
 def generar_speech_rebate_seguro(
     oferta: dict[str, Any], motivo_rechazo: str
@@ -219,18 +232,6 @@ def generar_speech_rebate_seguro(
         f"{apertura} Si le parece, podemos revisar {nombre}{detalle_precio} "
         "como alternativa. ¿Desea conocer sus condiciones?"
     )
-    return {
-        "etiqueta": labels.get(role, "Oferta compatible"),
-        "beneficio_principal": _beneficio_principal(oferta),
-        "razones": _razones_para_asesor(cliente, oferta),
-        "alertas": _alertas_para_asesor(warnings),
-        "speech": {
-            "texto": generar_speech_seguro(cliente, oferta, canal),
-            "tipo": "PLANTILLA_PARAMETRIZADA",
-            "requiere_revision_asesor": True,
-        },
-        "tipo_explicacion": "DESCRIPTIVA_NO_CAUSAL",
-    }
 
 
 def construir_entrada_modelo(

@@ -41,6 +41,7 @@ wheels/
 # Frontend / React / Vite
 # ==========================================
 node_modules/
+.tools/
 frontend_react/node_modules/
 frontend_react/dist/
 frontend_react/dist-ssr/
@@ -66,3 +67,10 @@ data/processed/scoring_top3_predictivo.csv
 *.swo
 .DS_Store
 Thumbs.db
+.vercel/
+
+# Variables de entorno: se ignoran los archivos reales,
+# pero la plantilla .env.example debe permanecer versionada.
+.env
+.env.*
+!.env.example

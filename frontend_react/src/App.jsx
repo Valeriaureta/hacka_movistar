@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Store, 
   PhoneIncoming, 
@@ -22,11 +22,17 @@ import LoginSSO from './components/auth/LoginSSO';
 import RolePortal from './components/portal/RolePortal';
 import ThemeToggle from './components/ThemeToggle';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { api } from './services/api';
 
 function MainApp() {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentView, setCurrentView] = useState('login');
+  const [modelStatus, setModelStatus] = useState(null);
   const { isDark } = useTheme();
+
+  useEffect(() => {
+    api.getModelStatus().then(setModelStatus);
+  }, []);
 
   const handleLogin = (userData) => {
     setCurrentUser(userData);
@@ -139,6 +145,22 @@ function MainApp() {
 
           {/* Controls: Theme Toggle + User Profile + Logout */}
           <div className="flex items-center gap-2.5">
+            <div
+              title={modelStatus
+                ? `${modelStatus.runtime?.clientes_total ?? 0} clientes · ${modelStatus.runtime?.ofertas_total ?? 0} ofertas`
+                : 'El frontend está usando datos locales de demostración'}
+              className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[10px] font-bold ${
+                modelStatus?.modelo_cargado
+                  ? 'border-[#7AB800]/40 bg-[#7AB800]/10 text-[#7AB800]'
+                  : 'border-amber-500/40 bg-amber-500/10 text-amber-500'
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${modelStatus?.modelo_cargado ? 'bg-[#7AB800]' : 'bg-amber-500'}`} />
+              {modelStatus?.modelo_cargado
+                ? `Motor conectado · ${modelStatus.runtime?.data_mode === 'completo' ? 'base completa' : 'muestra real'}`
+                : 'Modo demo local'}
+            </div>
+
             {/* Theme Toggle Sun / Moon */}
             <ThemeToggle />
 

@@ -5,12 +5,17 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 from datetime import datetime
+import os
 
 router = APIRouter(prefix="/api/gestion", tags=["Dashboard & E2E"])
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = BASE_DIR / "data"
-INTERACCIONES_PATH = DATA_DIR / "interacciones_e2e.csv"
+INTERACCIONES_PATH = (
+    Path("/tmp") / "interacciones_e2e.csv"
+    if os.getenv("VERCEL")
+    else DATA_DIR / "interacciones_e2e.csv"
+)
 
 # Columnas del archivo de registro
 COLUMNAS_INTERACCIONES = [
@@ -31,7 +36,7 @@ class RegistroGestion(BaseModel):
     ahorro_pct: Optional[float] = 0.0
 
 def _init_interacciones_file():
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    INTERACCIONES_PATH.parent.mkdir(parents=True, exist_ok=True)
     if not INTERACCIONES_PATH.exists():
         # Crear archivo vacío con columnas y algunos datos demo realistas iniciales
         demo_data = [

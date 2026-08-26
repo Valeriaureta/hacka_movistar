@@ -78,6 +78,10 @@ export function CanalTienda() {
       setSelectedOfferIndex(0);
       setShowNbo(false);
       setMotivosSeleccionados(['👤 Consulta de Línea / Plan']);
+      if (!match) {
+        setFeedbackMsg({ type: 'reject', text: `No se encontró ningún cliente con "${dniInput.trim()}".` });
+        setTimeout(() => setFeedbackMsg(null), 4000);
+      }
     } catch (err) {
       const fallback = MOCK_CLIENTES[0];
       setClienteActual(fallback);
@@ -105,10 +109,8 @@ export function CanalTienda() {
     try {
       const res = await api.evaluarNBO(rawClient.cliente_id, 'Tienda', motivosSeleccionados);
       if (res && res.motor_nbo) {
-        setClienteActual(prev => ({
-          ...prev,
-          motor_nbo: res.motor_nbo
-        }));
+        setClienteActual(res);
+        setSelectedOfferIndex(0);
       }
     } catch (e) {
       console.error("Error evaluando NBO en tienda:", e);
@@ -119,8 +121,23 @@ export function CanalTienda() {
   };
 
   const handleResponderMT = async (valor) => {
-    setFeedbackMsg({ type: 'success', text: `Preferencia MT '${valor}' enviada al motor.` });
-    setTimeout(() => setFeedbackMsg(null), 3000);
+    if (!clienteActual?.recomendacion_id) {
+      setFeedbackMsg({ type: 'error', text: 'No existe una recomendación activa para actualizar.' });
+      return;
+    }
+    setIsEvaluating(true);
+    try {
+      const res = await api.enviarPreferenciaMT(clienteActual.recomendacion_id, valor);
+      if (!res?.motor_nbo) throw new Error('El motor no devolvió una recomendación actualizada.');
+      setClienteActual(res);
+      setSelectedOfferIndex(0);
+      setFeedbackMsg({ type: 'success', text: 'Preferencia registrada y Top-3 recalculado.' });
+    } catch (error) {
+      setFeedbackMsg({ type: 'error', text: error.message });
+    } finally {
+      setIsEvaluating(false);
+      setTimeout(() => setFeedbackMsg(null), 3000);
+    }
   };
 
   return (
@@ -300,7 +317,7 @@ export function CanalTienda() {
                   </span>
                   {currentOffer.ahorro_pct > 0 && (
                     <span className="text-[10px] font-bold text-[#7AB800] bg-[#7AB800]/15 px-2 py-0.5 rounded-md border border-[#7AB800]/30">
-                      -{currentOffer.ahorro_pct}% DCTO
+                      {currentOffer.ahorro_pct}% de ahorro estimado
                     </span>
                   )}
                 </div>
@@ -432,7 +449,7 @@ export function CanalTienda() {
               ) : (
                 <>
                   {/* Pregunta Inteligente MT */}
-                  {preguntaMT && preguntaMT.estado === 'PENDIENTE' && (
+                  {preguntaMT && (preguntaMT.requiere_pregunta || preguntaMT.estado === 'PENDIENTE') && (
                     <div className={`border rounded-2xl p-5 mb-4 shadow-md ${
                       isDark ? 'bg-indigo-950/40 border-indigo-500/50' : 'bg-indigo-50 border-indigo-200'
                     }`}>
@@ -447,10 +464,14 @@ export function CanalTienda() {
                         {preguntaMT.opciones.map((opc, idx) => (
                           <button 
                             key={idx} 
-                            onClick={() => handleResponderMT(opc.valor)}
+                            onClick={() => handleResponderMT(opc.preferencia || opc.valor)}
                             className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm cursor-pointer"
                           >
-                            {opc.texto}
+                            {opc.texto || ({
+                              pagar_menos: 'Pagar menos',
+                              mas_gigas: 'Tener más gigas',
+                              datos_ilimitados: 'Datos ilimitados',
+                            }[opc.preferencia]) || opc.nombre_oferta}
                           </button>
                         ))}
                       </div>

@@ -2,6 +2,11 @@
 
 > **Solución Integral de Inteligencia Artificial para Personalización Comercial, Recomendación Next Best Offer (NBO), Explicabilidad (XAI), IA Generativa y Trazabilidad End-to-End (E2E) para Movistar Perú.**
 
+La conexión ejecutable entre datos, modelo, motor, API y frontend se documenta
+en [`docs/integracion_motor_frontend.md`](docs/integracion_motor_frontend.md).
+
+**Demo desplegada:** [movinexo.vercel.app](https://movinexo.vercel.app)
+
 ---
 
 ## 📋 Índice

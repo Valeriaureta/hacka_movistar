@@ -12,25 +12,15 @@ uvicorn[standard]>=0.34.0,<0.35.0
 pydantic>=2.11.0,<3.0.0
 
 # --- ML & Data ---
-scikit-learn>=1.9.0,<2.0.0
+scikit-learn==1.9.0
+scipy>=1.16.3,<1.17.0
 joblib>=1.4.0,<2.0.0
 pandas>=3.0.5,<4.0.0
 numpy>=2.5.2,<3.0.0
 
-# --- IA Generativa (SDK NUEVO — reemplaza google-generativeai) ---
-# MIGRACIÓN REQUERIDA: el paquete anterior "google-generativeai" está deprecado
-# desde mayo 2025. Usar "google-genai" con la nueva API de cliente.
-google-genai>=1.0.0,<2.0.0
-
-# --- Cliente HTTP (para OpenRouter) ---
-requests>=2.32.0,<3.0.0
-httpx>=0.28.0,<0.29.0        # recomendado para uso asíncrono con FastAPI
-
-# --- Variables de entorno ---
-python-dotenv>=1.0.1,<2.0.0
-
-# --- Explicabilidad XAI (opcional pero valorado en el desafío) ---
-shap>=0.47.0,<0.48.0         # requiere numpy >= 2.0
+# El servicio generativo Legacy_AI no se carga en el MVP desplegado (su router
+# está comentado en backend/main.py) y sus SDK quedan fuera del bundle de Vercel.
+# Para habilitarlo en local: pip install -r requirements-ai.txt
 
 # ============================================================
 # NOTAS DE COMPATIBILIDAD
