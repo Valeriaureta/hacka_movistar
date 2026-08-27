@@ -598,7 +598,7 @@ def analizar_call_in(
             prompt=_construir_prompt_call_in(payload, texto_dialogo),
             schema=SCHEMA_CALL_IN,
             system_instruction=SYSTEM_CALL_IN,
-            temperature=0.2,
+            temperature=ai_inst.temperatura_analisis,
         )
         if datos:
             nivel = datos.get("nivel_sentimiento", "NEUTRO")
@@ -660,7 +660,7 @@ def analizar_call_out(
             prompt=_construir_prompt_call_out(payload, texto_dialogo),
             schema=SCHEMA_CALL_OUT,
             system_instruction=SYSTEM_CALL_OUT,
-            temperature=0.2,
+            temperature=ai_inst.temperatura_analisis,
         )
         if datos:
             rebate_aplicado = bool(datos.get("rebate_aplicado", False))

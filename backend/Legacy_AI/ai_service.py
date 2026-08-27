@@ -95,6 +95,12 @@ class AIService:
         # en frio cuesta ~60 s; con esto solo se paga una vez por sesion.
         self.ollama_keep_alive = os.getenv("OLLAMA_KEEP_ALIVE", "30m").strip()
         self.ollama_habilitado = os.getenv("OLLAMA_HABILITADO", "true").strip().lower() not in ("false", "0", "no")
+
+        # Temperatura de los analisis post-hoc. 0 = decodificacion voraz: la misma
+        # llamada produce el mismo informe, propiedad deseable en una auditoria.
+        # Medido en qwen2.5:7b -> 3/3 corridas identicas a 0.0 frente a 3/3
+        # distintas a 0.2, sin coste de latencia.
+        self.temperatura_analisis = float(os.getenv("LLM_TEMPERATURE", "0"))
         # Cache del sondeo a /api/tags: evita penalizar cada analisis con un
         # timeout cuando Ollama no esta instalado.
         self._ollama_modelos_cache: Optional[List[str]] = None
@@ -407,7 +413,7 @@ class AIService:
         prompt: str,
         schema: Dict[str, Any],
         system_instruction: Optional[str] = None,
-        temperature: float = 0.2,
+        temperature: float = 0.0,
     ) -> Dict[str, Any]:
         """Inferencia estructurada contra el modelo local.
 
@@ -459,7 +465,7 @@ class AIService:
         prompt: str,
         schema: Dict[str, Any],
         system_instruction: Optional[str] = None,
-        temperature: float = 0.2,
+        temperature: float = 0.0,
     ) -> Tuple[Optional[Dict[str, Any]], Dict[str, Any]]:
         """Inferencia estructurada con cascada de proveedores.
 
