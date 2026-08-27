@@ -87,14 +87,14 @@ export default function RolePortal({ onSelectChannel, onOpenDashboard }) {
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00C6D7]/15 border border-[#00C6D7]/30 text-[#00C6D7] text-xs font-semibold">
               <Sparkles className="w-3.5 h-3.5 text-[#00C6D7]" />
-              Hub Omnicanal Movi Nexo · Movistar Perú
+              Hub Omnicanal MoviNexo · Movistar Perú
             </div>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-white p-2 flex items-center justify-center shadow-lg shadow-black/15 border border-slate-100 dark:border-white/10">
-                <img src="/logo.svg" alt="Movi Nexo Logo" className="w-full h-full object-contain" />
+                <img src="/logo.svg" alt="MoviNexo Logo" className="w-full h-full object-contain" />
               </div>
               <h1 className={`text-3xl font-extrabold tracking-tight ${isDark ? 'text-white' : 'text-[#005C84]'}`}>
-                Movi Nexo{' '}
+                MoviNexo{' '}
                 <span className="bg-gradient-to-r from-[#00C6D7] via-teal-400 to-[#7AB800] bg-clip-text text-transparent">
                   Personalización Inteligente
                 </span>

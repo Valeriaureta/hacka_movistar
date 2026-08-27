@@ -1,4 +1,4 @@
-# 🚀 Movi Nexo (NBO 2.0) — Sistema Omnicanal de Recomendación Inteligente
+# 🚀 MoviNexo (NBO 2.0) — Sistema Omnicanal de Recomendación Inteligente
 
 > **Solución Integral de Inteligencia Artificial para Personalización Comercial, Recomendación Next Best Offer (NBO), Explicabilidad (XAI), IA Generativa y Trazabilidad End-to-End (E2E) para Movistar Perú.**
 
@@ -29,7 +29,7 @@ en [`docs/integracion_motor_frontend.md`](docs/integracion_motor_frontend.md).
 
 ## 🌟 Descripción General
 
-El sistema **Movi Nexo** es una plataforma tecnológica desarrollada para transformar la personalización comercial en Movistar Perú. Integra modelos predictivos de Machine Learning, reglas de negocio avanzadas, Explainable AI (XAI), Inteligencia Artificial Generativa y un frontend responsivo multicanal.
+El sistema **MoviNexo** es una plataforma tecnológica desarrollada para transformar la personalización comercial en Movistar Perú. Integra modelos predictivos de Machine Learning, reglas de negocio avanzadas, Explainable AI (XAI), Inteligencia Artificial Generativa y un frontend responsivo multicanal.
 
 ### Objetivos Clave Alcanzados:
 - **Priorización Estratégica de Movistar Total (MT):** Detección inteligente de clientes elegibles para convergencia fijo + móvil con hasta 50% de ahorro.
