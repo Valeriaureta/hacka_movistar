@@ -10,6 +10,7 @@ import {
 import { MOCK_CLIENTES } from '../data/mockData';
 import { api } from '../services/api';
 import RebateModal from './RebateModal';
+import { useTheme } from '../context/ThemeContext';
 
 // Menú principal oficial del Bot de WhatsApp Movistar Perú (Luz)
 const BOT_MENU_OPTIONS = [
@@ -35,7 +36,9 @@ export function CanalWhatsApp() {
   const [isRebateOpen, setIsRebateOpen] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState(null);
   const [activeTabPanel, setActiveTabPanel] = useState('ia_context'); // 'ia_context' | 'quick_replies'
+  const { isDark } = useTheme();
   
+  const chatContainerRef = useRef(null);
   const chatBottomRef = useRef(null);
 
   useEffect(() => {
@@ -60,7 +63,12 @@ export function CanalWhatsApp() {
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTo({
+          top: chatContainerRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
     }, 100);
   };
 
@@ -762,6 +770,7 @@ export function CanalWhatsApp() {
 
           {/* Cuerpo de Mensajes con Wallpaper WhatsApp Texturizado */}
           <div 
+            ref={chatContainerRef}
             className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#0b141a]"
             style={{
               backgroundImage: `radial-gradient(circle at 50% 50%, rgba(0, 92, 132, 0.05) 0%, transparent 100%)`
@@ -975,13 +984,15 @@ export function CanalWhatsApp() {
         <div className="lg:col-span-5 space-y-4">
 
           {/* Selector de Pestañas del Panel Derecho */}
-          <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-900 border border-slate-800">
+          <div className={`flex items-center gap-2 p-1.5 rounded-2xl border transition-colors duration-300 ${
+            isDark ? 'bg-[#061426] border-[#005C84]/30' : 'bg-slate-100 border-slate-200'
+          }`}>
             <button
               onClick={() => setActiveTabPanel('ia_context')}
               className={`flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeTabPanel === 'ia_context'
                   ? 'bg-[#005C84] text-white shadow-md'
-                  : 'text-slate-400 hover:text-white'
+                  : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-[#005C84]'
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-[#00C6D7]" /> Contexto IA & NBO
@@ -991,7 +1002,7 @@ export function CanalWhatsApp() {
               className={`flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeTabPanel === 'quick_replies'
                   ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-white'
+                  : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-blue-700'
               }`}
             >
               <MessageSquare className="w-3.5 h-3.5 text-blue-300" /> Respuestas Asesor
@@ -1003,44 +1014,68 @@ export function CanalWhatsApp() {
             <div className="space-y-4 animate-fadeIn">
               
               {/* Tarjeta de Diagnóstico del Cliente */}
-              <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className={`border rounded-3xl p-5 shadow-xl space-y-4 transition-all duration-300 ${
+                isDark 
+                  ? 'bg-[#061426]/90 border-[#005C84]/40 text-white shadow-black/40' 
+                  : 'bg-white border-[#005C84]/15 text-[#002D42] shadow-[#005C84]/10'
+              }`}>
+                <div className={`flex items-center justify-between pb-3 border-b ${
+                  isDark ? 'border-[#005C84]/20' : 'border-slate-100'
+                }`}>
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <h3 className="text-sm font-black text-white uppercase tracking-wider">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <h3 className={`text-sm font-black uppercase tracking-wider ${
+                      isDark ? 'text-white' : 'text-[#005C84]'
+                    }`}>
                       Perfil del Cliente en Sesión
                     </h3>
                   </div>
                   <span className={`px-2.5 py-1 rounded-full text-xs font-black ${
-                    isHighRisk ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                    isHighRisk 
+                      ? 'bg-rose-500/20 text-rose-500 border border-rose-500/30' 
+                      : 'bg-emerald-500/20 text-emerald-600 border border-emerald-500/30'
                   }`}>
                     {isHighRisk ? '🔥 Churn Crítico' : 'Elegible NBO'}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                    <span className="text-slate-400 font-medium block">Nombre / DNI</span>
-                    <span className="font-bold text-white text-sm truncate block mt-0.5">{selectedCliente?.nombre}</span>
-                    <span className="text-[#00C6D7] font-mono text-xs">DNI: {selectedCliente?.dni || selectedCliente?.cliente_id}</span>
+                  <div className={`p-3 rounded-2xl border ${
+                    isDark ? 'bg-[#030914] border-[#005C84]/30' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <span className={`font-medium block ${isDark ? 'text-slate-400' : 'text-[#515559]'}`}>Nombre / DNI</span>
+                    <span className={`font-bold text-sm truncate block mt-0.5 ${isDark ? 'text-white' : 'text-[#002D42]'}`}>
+                      {selectedCliente?.nombre}
+                    </span>
+                    <span className={`font-mono text-xs ${isDark ? 'text-[#00C6D7]' : 'text-[#005C84]'}`}>
+                      DNI: {selectedCliente?.dni || selectedCliente?.cliente_id}
+                    </span>
                   </div>
 
-                  <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                    <span className="text-slate-400 font-medium block">Plan Actual</span>
-                    <span className="font-bold text-sky-400 text-sm truncate block mt-0.5">{selectedCliente?.plan_actual_nombre}</span>
-                    <span className="text-white font-mono text-xs font-bold">S/ {selectedCliente?.plan_actual_precio}/mes</span>
+                  <div className={`p-3 rounded-2xl border ${
+                    isDark ? 'bg-[#030914] border-[#005C84]/30' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <span className={`font-medium block ${isDark ? 'text-slate-400' : 'text-[#515559]'}`}>Plan Actual</span>
+                    <span className={`font-bold text-sm truncate block mt-0.5 ${isDark ? 'text-sky-400' : 'text-[#005C84]'}`}>
+                      {selectedCliente?.plan_actual_nombre}
+                    </span>
+                    <span className={`font-mono text-xs font-bold ${isDark ? 'text-white' : 'text-[#7AB800]'}`}>
+                      S/ {selectedCliente?.plan_actual_precio}/mes
+                    </span>
                   </div>
                 </div>
 
                 {/* Métricas de Riesgo y Scoring */}
-                <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+                <div className={`p-3 rounded-2xl border space-y-2 ${
+                  isDark ? 'bg-[#030914] border-[#005C84]/30' : 'bg-slate-50 border-slate-200'
+                }`}>
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-400 font-semibold">Propensión a Paquetes Movistar Total:</span>
+                    <span className={`font-semibold ${isDark ? 'text-slate-400' : 'text-[#515559]'}`}>Propensión a Paquetes Movistar Total:</span>
                     <span className="text-[#7AB800] font-black text-sm">
                       {((1 - (selectedCliente?.score_churn || 0.2)) * 100).toFixed(0)}% Alta
                     </span>
                   </div>
-                  <div className="w-full rounded-full h-2 bg-slate-800 overflow-hidden">
+                  <div className={`w-full rounded-full h-2 overflow-hidden ${isDark ? 'bg-slate-800' : 'bg-slate-200'}`}>
                     <div 
                       className="bg-gradient-to-r from-[#005C84] via-[#00C6D7] to-[#7AB800] h-2 rounded-full" 
                       style={{ width: `${(1 - (selectedCliente?.score_churn || 0.2)) * 100}%` }}
@@ -1051,7 +1086,11 @@ export function CanalWhatsApp() {
 
               {/* Oferta NBO Recomendada por el Modelo */}
               {currentDisplayOffer && (
-                <div className="bg-gradient-to-br from-[#061426] via-slate-900 to-[#005C84]/30 border border-[#00C6D7]/40 rounded-3xl p-5 shadow-xl space-y-4 relative overflow-hidden">
+                <div className={`border rounded-3xl p-5 shadow-xl space-y-4 relative overflow-hidden transition-all duration-300 ${
+                  isDark 
+                    ? 'bg-gradient-to-br from-[#061426] via-slate-900 to-[#005C84]/30 border-[#00C6D7]/40 shadow-black/40' 
+                    : 'bg-gradient-to-br from-white via-sky-50/30 to-white border-[#005C84]/20 shadow-[#005C84]/10'
+                }`}>
                   <div className="flex items-center justify-between">
                     <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-[#00C6D7] text-slate-950 flex items-center gap-1.5 shadow-md">
                       <Sparkles className="w-3.5 h-3.5 fill-current" />
@@ -1063,27 +1102,39 @@ export function CanalWhatsApp() {
                   </div>
 
                   <div>
-                    <h4 className="text-lg font-black text-white">{currentDisplayOffer.nombre_oferta}</h4>
+                    <h4 className={`text-lg font-black ${isDark ? 'text-white' : 'text-[#005C84]'}`}>
+                      {currentDisplayOffer.nombre_oferta}
+                    </h4>
                     <div className="flex items-baseline gap-3 mt-1.5">
                       <span className="text-3xl font-black text-[#7AB800]">
                         S/ {currentDisplayOffer.precio_promocional}/mes
                       </span>
-                      <span className="text-sm text-slate-400 line-through">
+                      <span className={`text-sm line-through ${isDark ? 'text-slate-400' : 'text-slate-400'}`}>
                         S/ {currentDisplayOffer.precio_regular}
                       </span>
                       {currentDisplayOffer.ahorro_pct > 0 && (
-                        <span className="text-xs font-black text-[#00C6D7] bg-[#00C6D7]/20 px-2.5 py-1 rounded-lg border border-[#00C6D7]/40">
+                        <span className={`text-xs font-black px-2.5 py-1 rounded-lg border ${
+                          isDark 
+                            ? 'text-[#00C6D7] bg-[#00C6D7]/20 border-[#00C6D7]/40' 
+                            : 'text-[#005C84] bg-sky-100 border-sky-300'
+                        }`}>
                           -{currentDisplayOffer.ahorro_pct}% DCTO
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="bg-slate-950/80 p-3 rounded-2xl border border-[#00C6D7]/20 text-xs space-y-1">
-                    <span className="text-xs font-bold text-[#00C6D7] uppercase tracking-wider block">
+                  <div className={`p-3 rounded-2xl border text-xs space-y-1 ${
+                    isDark ? 'bg-[#030914]/80 border-[#00C6D7]/20' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <span className={`text-xs font-bold uppercase tracking-wider block ${
+                      isDark ? 'text-[#00C6D7]' : 'text-[#005C84]'
+                    }`}>
                       Estado de Automatización en WhatsApp:
                     </span>
-                    <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                    <p className={`text-xs leading-relaxed font-medium ${
+                      isDark ? 'text-slate-300' : 'text-[#002D42]'
+                    }`}>
                       {handoverActive 
                         ? '⚠️ El Bot Luz transfirió la sesión al Asesor Humano. Puedes enviar argumentos con 1 clic en la pestaña "Respuestas Asesor".' 
                         : '✅ El Bot Luz está gestionando la oferta con botones interactivos y respuesta inmediata.'}
@@ -1096,18 +1147,28 @@ export function CanalWhatsApp() {
 
           {/* PESTAÑA 2: Respuestas Rápidas para el Asesor Humano (Handover) */}
           {activeTabPanel === 'quick_replies' && (
-            <div className="bg-slate-900/95 border border-blue-500/40 rounded-3xl p-5 shadow-xl space-y-4 animate-fadeIn">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                <span className="text-xs font-black uppercase tracking-wider text-blue-400 flex items-center gap-2">
+            <div className={`border rounded-3xl p-5 shadow-xl space-y-4 animate-fadeIn transition-all duration-300 ${
+              isDark 
+                ? 'bg-[#061426]/95 border-blue-500/40 shadow-black/40' 
+                : 'bg-white border-blue-200 shadow-blue-500/10'
+            }`}>
+              <div className={`flex items-center justify-between pb-3 border-b ${
+                isDark ? 'border-slate-800' : 'border-slate-100'
+              }`}>
+                <span className={`text-xs font-black uppercase tracking-wider flex items-center gap-2 ${
+                  isDark ? 'text-blue-400' : 'text-blue-700'
+                }`}>
                   <Sparkles className="w-4 h-4" />
                   Respuestas Rápidas Asesor (1 Clic)
                 </span>
-                <span className="text-xs font-mono text-blue-300 bg-blue-500/20 px-2.5 py-1 rounded-lg border border-blue-500/30">
+                <span className={`text-xs font-mono px-2.5 py-1 rounded-lg border ${
+                  isDark ? 'text-blue-300 bg-blue-500/20 border-blue-500/30' : 'text-blue-800 bg-blue-50 border-blue-200'
+                }`}>
                   {handoverActive ? 'Handover Activo' : 'Modo Asesor Disponible'}
                 </span>
               </div>
 
-              <p className="text-xs text-slate-300 font-medium">
+              <p className={`text-xs font-medium ${isDark ? 'text-slate-300' : 'text-[#515559]'}`}>
                 Haz clic en <strong>Enviar Directo</strong> para publicar el mensaje en el chat o en <strong>Editar</strong> para personalizarlo antes de enviar:
               </p>
 
@@ -1115,20 +1176,32 @@ export function CanalWhatsApp() {
                 {handoverSuggestedMessages.map((item, idx) => (
                   <div 
                     key={idx} 
-                    className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 hover:border-blue-500/50 transition group space-y-2 shadow-sm"
+                    className={`p-3.5 rounded-2xl border transition group space-y-2 shadow-sm ${
+                      isDark 
+                        ? 'bg-[#030914] border-slate-800 hover:border-blue-500/50' 
+                        : 'bg-slate-50 border-slate-200 hover:border-blue-300'
+                    }`}
                   >
-                    <span className="text-xs font-extrabold text-white group-hover:text-blue-300 transition block">
+                    <span className={`text-xs font-extrabold transition block ${
+                      isDark ? 'text-white group-hover:text-blue-300' : 'text-[#005C84] group-hover:text-blue-700'
+                    }`}>
                       {item.titulo}
                     </span>
 
-                    <p className="text-xs text-slate-300 italic leading-relaxed">
+                    <p className={`text-xs italic leading-relaxed ${
+                      isDark ? 'text-slate-300' : 'text-[#002D42]'
+                    }`}>
                       "{item.texto}"
                     </p>
 
                     <div className="flex items-center justify-end gap-2 pt-1">
                       <button
                         onClick={() => setInputText(item.texto)}
-                        className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition"
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition border ${
+                          isDark 
+                            ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700' 
+                            : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300'
+                        }`}
                         title="Pegar en la caja de texto para editar"
                       >
                         <Edit3 className="w-3.5 h-3.5 text-slate-400" /> Editar

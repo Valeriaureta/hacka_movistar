@@ -200,9 +200,16 @@ Consecuencias:
 | `aceptada + rechazada`, **incluyendo** rebates | 254,618 | **0.3747** |
 | `aceptada + rechazada`, **excluyendo** rebates | 207,046 | **0.4608** |
 
-`data/processed/modelo_v2/reporte_entrenamiento.json` usa el segundo (`rebates_in_primary_model: false`, tasa 0.4608). **`EDA/benchmark_metricas_comparadas.ipynb` usa el primero** (0.3747), porque filtra solo por `resultado` sin excluir rebates.
+`data/processed/modelo_v2/reporte_entrenamiento.json` y
+`EDA/benchmark_metricas_comparadas.ipynb` usan actualmente el segundo universo
+(`rebates_in_primary_model: false`, tasa 0.4608). El benchmark fue corregido y
+re-ejecutado el 26 de agosto de 2026; conserva la lectura anterior únicamente como
+trazabilidad histórica marcada explícitamente como no vigente.
 
-> ⚠️ **Limitación conocida del benchmark.** Al incluir 47,572 filas estructuralmente imposibles de aceptar, el notebook diluye todas sus métricas y **no es directamente comparable** con `reporte_entrenamiento.json`. La metodología de `modelo_v2` (excluir rebates) es la correcta. Si se retoma este trabajo, **la primera corrección debería ser filtrar `es_rebate == False`** y re-ejecutar. Esto afecta especialmente la sección SNIPS, donde ninguna política superó a la histórica.
+> ✅ **Limitación corregida.** Las métricas vigentes del benchmark excluyen las
+> 47,572 filas de rebate. Las salidas regeneradas en
+> `data/processed/benchmarks_comparados/` ya son comparables metodológicamente con
+> `reporte_entrenamiento.json`.
 
 ### 5.2 `pendiente` ≠ rechazo
 
@@ -292,14 +299,14 @@ Las secciones 2.1, 2.5 y el experimento de offset están **ya ejecutados y persi
 
 | Notebook | Qué hace | Resultado |
 |---|---|---|
-| [`EDA/benchmark_metricas_comparadas.ipynb`](../EDA/benchmark_metricas_comparadas.ipynb) | Suite A (métricas actuales) vs Suite B (propuestas) + validación temporal + SNIPS | 34 celdas, 0 errores |
+| [`EDA/benchmark_metricas_comparadas.ipynb`](../EDA/benchmark_metricas_comparadas.ipynb) | Suite A/B + SNIPS + lift multi-K + calibración + rolling temporal + economía + concentración + bootstrap agrupado | 46 celdas, 26 de código, 0 errores |
 | [`EDA/modelo_motivo_rechazo.ipynb`](../EDA/modelo_motivo_rechazo.ipynb) | Clasificador de `motivo_rechazo` vs. la heurística en producción | 25 celdas, 0 errores. **Ganó un baseline** — no se serializó modelo |
 | [`EDA/EDA_logistica_corregida.ipynb`](../EDA/EDA_logistica_corregida.ipynb) | Notebook original de comparación de escaladores | Preexistente |
 
 ### Salidas
 
 ```
-data/processed/benchmarks_comparados/     11 archivos (suite A/B, temporal, SNIPS, comparativa)
+data/processed/benchmarks_comparados/     18 archivos (suite A/B, temporal, SNIPS, lift, calibración, economía y bootstrap)
 data/processed/modelo_motivo_rechazo/      3 archivos (reporte + comparativas; sin .joblib)
 data/processed/modelo_v2/                  preexistente — metodología correcta (excluye rebates)
 ```
@@ -315,7 +322,8 @@ Cerrado en negativo, con dato relevante para el motor: la heurística `motivo_re
 1. **[COMPLETADO] Rankear por valor esperado** (`p × precio_mensual`) pseudo-normalizado en `motor_reglas_negocio.py`. Impacto verificado +22.14% de ingreso, sin reentrenar.
 2. **[COMPLETADO] Filtrar `es_rebate == False`** y evaluar en dataset limpio (46.08% tasa real) en `EDA/modelo_propension_valor_esperado.ipynb`.
 3. **[COMPLETADO] Modelo de contactabilidad** `P(contactado | cliente, canal)` sobre las 45,494 filas `pendiente`. Se construyó en `EDA/modelo_contactabilidad_canal.ipynb` (Fase 2 de integración backend pendiente).
-4. **No** invertir más en tuning ni en cambio de algoritmo para el modelo de propensión (§1).
+4. **[COMPLETADO] Ampliar benchmarks del motor** sobre ofertas primarias: lift multi-K, calibración segmentada, backtesting rolling, concentración de catálogo e intervalos agrupados por cliente. Resultado persistido en `resumen_benchmarks_ampliados.json`.
+5. **No** invertir más en tuning ni en cambio de algoritmo para el modelo de propensión (§1).
 
 ---
 

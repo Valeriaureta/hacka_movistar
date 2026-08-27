@@ -260,7 +260,7 @@ export function CanalTienda() {
                 }`}>
                   <span className={`text-[10px] block ${isDark ? 'text-slate-400' : 'text-[#515559]'}`}>Gasto Promedio</span>
                   <span className={`font-bold block ${isDark ? 'text-white' : 'text-[#002D42]'}`}>
-                    S/ {rawClient.monto_facturado_prom}
+                    S/ {Number(rawClient.monto_facturado_prom || rawClient.plan_actual_precio || 0).toFixed(2)}
                   </span>
                   <span className="text-slate-400 text-[10px]">Facturación 6m</span>
                 </div>
@@ -270,7 +270,7 @@ export function CanalTienda() {
                 }`}>
                   <span className={`text-[10px] block ${isDark ? 'text-slate-400' : 'text-[#515559]'}`}>Consumo Mensual</span>
                   <span className="font-bold text-[#00C6D7] text-xs block font-mono">
-                    {rawClient.consumo_datos_gb_prom} GB
+                    {Number(rawClient.consumo_datos_gb_prom || 0).toFixed(2)} GB
                   </span>
                   <span className="text-slate-400 text-[10px]">Datos móviles</span>
                 </div>

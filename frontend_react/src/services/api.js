@@ -129,10 +129,11 @@ export const api = {
     return { status: "local", message: "Registrado en memoria temporal" };
   },
 
-  async getDashboardMetrics() {
+  // scope: 'consolidado' | 'historico' | 'sesion'
+  async getDashboardMetrics(scope = 'consolidado') {
     try {
       await this.autoLogin();
-      const res = await fetch('/api/gestion/dashboard', {
+      const res = await fetch(`/api/gestion/dashboard?scope=${encodeURIComponent(scope)}`, {
         headers: this.token ? { 'Authorization': `Bearer ${this.token}` } : {}
       });
       if (res.ok) {

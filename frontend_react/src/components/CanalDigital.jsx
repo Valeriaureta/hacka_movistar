@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { MOCK_CLIENTES } from '../data/mockData';
 import { api } from '../services/api';
+import { useTheme } from '../context/ThemeContext';
 
 export function CanalDigital() {
   const [clientesList, setClientesList] = useState(MOCK_CLIENTES);
@@ -27,6 +28,7 @@ export function CanalDigital() {
   const [isLoading, setIsLoading] = useState(false);
   const [isContracting, setIsContracting] = useState(false);
   const [contractSuccess, setContractSuccess] = useState(false);
+  const { isDark } = useTheme();
 
   useEffect(() => {
     let isMounted = true;
@@ -105,27 +107,35 @@ export function CanalDigital() {
     <div className="space-y-4 max-w-7xl mx-auto pb-6">
       
       {/* Header Compact */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+      <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3 transition-colors duration-300 ${
+        isDark ? 'border-[#005C84]/20' : 'border-slate-200'
+      }`}>
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-cyan-500/20 flex items-center justify-center text-cyan-400 font-bold">
+          <div className="w-8 h-8 rounded-xl bg-cyan-500/20 flex items-center justify-center text-cyan-500 font-bold">
             <Smartphone className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-bold text-white leading-none">Canal Digital (App Mi Movistar & Web)</h1>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+              <h1 className={`text-lg font-bold leading-none ${isDark ? 'text-white' : 'text-[#005C84]'}`}>
+                Canal Digital (App Mi Movistar & Web)
+              </h1>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                isDark 
+                  ? 'bg-cyan-500/10 text-cyan-300 border-cyan-500/20' 
+                  : 'bg-cyan-50 text-cyan-700 border-cyan-200'
+              }`}>
                 Inyección Headless Zero-Touch
               </span>
             </div>
-            <p className="text-slate-400 text-xs mt-0.5">
+            <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-[#515559]'}`}>
               Demostración de personalización dinámica de banners vía API sin intervención humana
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-slate-400 font-mono text-[11px]">Middleware:</span>
-          <span className="font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+          <span className={`font-mono text-[11px] ${isDark ? 'text-slate-400' : 'text-[#515559]'}`}>Middleware:</span>
+          <span className="font-mono font-bold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
             API RESTful Active
           </span>
         </div>
@@ -138,13 +148,19 @@ export function CanalDigital() {
         <div className="lg:col-span-7 space-y-4">
           
           {/* Customer Archetype Selector */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+          <div className={`border rounded-2xl p-4 shadow-xl space-y-3 transition-all duration-300 ${
+            isDark 
+              ? 'bg-[#061426]/85 border-[#005C84]/35 shadow-black/40' 
+              : 'bg-white border-[#005C84]/15 shadow-[#005C84]/10'
+          }`}>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                <Layers className="w-4 h-4 text-[#00a9e0]" />
+              <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                isDark ? 'text-slate-300' : 'text-[#005C84]'
+              }`}>
+                <Layers className="w-4 h-4 text-[#00C6D7]" />
                 1. Seleccionar Arquetipo de Cliente para Simulación:
               </span>
-              <span className="text-[10px] text-slate-500 font-mono">Reactiva en vivo</span>
+              <span className={`text-[10px] font-mono ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Reactiva en vivo</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-56 overflow-y-auto pr-1">
@@ -159,21 +175,33 @@ export function CanalDigital() {
                     onClick={() => setSelectedClienteIndex(idx)}
                     className={`p-3 rounded-xl border text-left transition cursor-pointer ${
                       isSelected 
-                        ? 'bg-[#00a9e0]/15 border-[#00a9e0] shadow-lg shadow-[#00a9e0]/10' 
-                        : 'bg-slate-950/60 border-slate-800 hover:bg-slate-800/60'
+                        ? isDark
+                          ? 'bg-[#00a9e0]/15 border-[#00a9e0] shadow-md shadow-[#00a9e0]/10'
+                          : 'bg-sky-50 border-[#005C84] shadow-sm'
+                        : isDark
+                          ? 'bg-[#030914] border-slate-800 hover:bg-slate-800/40'
+                          : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
                     <div className="flex justify-between items-start">
-                      <span className={`font-bold text-xs ${isSelected ? 'text-[#00a9e0]' : 'text-white'}`}>
+                      <span className={`font-bold text-xs ${
+                        isSelected 
+                          ? (isDark ? 'text-[#00C6D7]' : 'text-[#005C84]') 
+                          : (isDark ? 'text-white' : 'text-[#002D42]')
+                      }`}>
                         {cli.nombre || cli.cliente_id}
                       </span>
                       <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono font-bold ${
-                        cliHighRisk ? 'bg-rose-500/20 text-rose-300' : 'bg-emerald-500/20 text-emerald-300'
+                        cliHighRisk 
+                          ? 'bg-rose-500/20 text-rose-500' 
+                          : cli.elegible_mt 
+                          ? 'bg-[#7AB800]/20 text-[#7AB800]' 
+                          : 'bg-cyan-500/20 text-cyan-600'
                       }`}>
                         {cliHighRisk ? '🔥 Churn' : cli.elegible_mt ? 'MT Propenso' : 'Upgrade'}
                       </span>
                     </div>
-                    <p className="text-[10px] text-slate-400 mt-1 font-mono">
+                    <p className={`text-[10px] mt-1 font-mono ${isDark ? 'text-slate-400' : 'text-[#515559]'}`}>
                       {cli.plan_actual_nombre || cli.plan_actual_id} · S/ {cli.plan_actual_precio || cli.monto_facturado_prom}
                     </p>
                   </button>
@@ -183,22 +211,32 @@ export function CanalDigital() {
           </div>
 
           {/* JSON Payload Viewer */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2.5">
+          <div className={`border rounded-2xl p-4 shadow-xl space-y-2.5 transition-all duration-300 ${
+            isDark 
+              ? 'bg-[#061426]/85 border-[#005C84]/35 shadow-black/40' 
+              : 'bg-white border-[#005C84]/15 shadow-[#005C84]/10'
+          }`}>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                <Code className="w-4 h-4 text-emerald-400" />
+              <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                isDark ? 'text-slate-300' : 'text-[#005C84]'
+              }`}>
+                <Code className="w-4 h-4 text-emerald-500" />
                 2. Payload JSON Inyectado por API / Middleware NBO:
               </span>
-              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              <span className="text-[10px] font-mono text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                 HTTP 200 OK · Latency: 2.1ms
               </span>
             </div>
 
-            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 text-[11px] font-mono text-emerald-300 overflow-x-auto max-h-64 shadow-inner">
+            <div className={`p-3.5 rounded-xl border text-[11px] font-mono overflow-x-auto max-h-64 shadow-inner ${
+              isDark ? 'bg-[#030914] border-[#005C84]/30 text-emerald-300' : 'bg-slate-900 border-slate-700 text-emerald-400'
+            }`}>
               <pre className="leading-relaxed">{JSON.stringify(jsonPayload, null, 2)}</pre>
             </div>
 
-            <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono pt-1">
+            <div className={`flex items-center justify-between text-[10px] font-mono pt-1 ${
+              isDark ? 'text-slate-500' : 'text-slate-400'
+            }`}>
               <span>Endpoint: POST /api/nbo/predict-digital</span>
               <span>FastAPI + Micro-segmentación</span>
             </div>
@@ -331,3 +369,5 @@ export function CanalDigital() {
     </div>
   );
 }
+
+export default CanalDigital;

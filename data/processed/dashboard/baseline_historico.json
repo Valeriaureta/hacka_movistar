@@ -1,0 +1,238 @@
+{
+  "generado_en": "2026-08-26 22:03:18",
+  "origen": {
+    "archivo": "data/raw/historial_campanias.csv",
+    "filas": 300112,
+    "clientes_unicos": 95019,
+    "periodo_desde": "2026-01-10",
+    "periodo_hasta": "2026-06-10"
+  },
+  "kpis": {
+    "total": 300112,
+    "contactados": 254618,
+    "aceptadas": 95414,
+    "rechazadas": 159204,
+    "mt_aceptadas": 16872,
+    "tasa_conversion": 31.8,
+    "tasa_contactabilidad": 84.8,
+    "share_mt": 17.7
+  },
+  "funnel": [
+    {
+      "etapa": "1. Ofrecimientos Evaluados por el Motor",
+      "cantidad": 300112,
+      "fill": "#005C84",
+      "detalle": "Registros priorizados por el modelo de propension NBO",
+      "unidad": "ofrecimientos"
+    },
+    {
+      "etapa": "2. Contactos Efectivos",
+      "cantidad": 254618,
+      "fill": "#0078A8",
+      "detalle": "Ofrecimientos que si llegaron al cliente en alguno de los canales",
+      "unidad": "ofrecimientos"
+    },
+    {
+      "etapa": "3. Ofertas Aceptadas",
+      "cantidad": 95414,
+      "fill": "#00C6D7",
+      "detalle": "Cierre comercial confirmado por el asesor",
+      "unidad": "ofrecimientos"
+    },
+    {
+      "etapa": "4. Movistar Total Ganados",
+      "cantidad": 16872,
+      "fill": "#7AB800",
+      "detalle": "Cierres convergentes fijo + movil (subconjunto de aceptadas)",
+      "unidad": "ofrecimientos"
+    }
+  ],
+  "canales": [
+    {
+      "canal": "Digital",
+      "total": 104598,
+      "contactados": 88744,
+      "aceptadas": 33235,
+      "conversion": 31.8
+    },
+    {
+      "canal": "Tienda",
+      "total": 90185,
+      "contactados": 76467,
+      "aceptadas": 28775,
+      "conversion": 31.9
+    },
+    {
+      "canal": "Call In",
+      "total": 60065,
+      "contactados": 51017,
+      "aceptadas": 19029,
+      "conversion": 31.7
+    },
+    {
+      "canal": "Call Out",
+      "total": 45264,
+      "contactados": 38390,
+      "aceptadas": 14375,
+      "conversion": 31.8
+    }
+  ],
+  "motivos_rechazo": [
+    {
+      "motivo": "Precio muy alto",
+      "cantidad": 55652
+    },
+    {
+      "motivo": "No necesita el servicio",
+      "cantidad": 31808
+    },
+    {
+      "motivo": "Ya tiene un servicio similar",
+      "cantidad": 23959
+    },
+    {
+      "motivo": "No es buen momento",
+      "cantidad": 23936
+    },
+    {
+      "motivo": "Desconfianza / mala experiencia",
+      "cantidad": 15979
+    },
+    {
+      "motivo": "Otros motivos",
+      "cantidad": 7870
+    }
+  ],
+  "ultimas_gestiones": [
+    {
+      "id": "OFR0300111",
+      "timestamp": "2026-06-10 00:00:00",
+      "cliente_id": "CLI099999",
+      "canal": "Call In",
+      "oferta_id": "OF015",
+      "oferta_nombre": "Equipo Smartphone Gama Alta",
+      "es_movistar_total": false,
+      "estado": "RECHAZADA",
+      "motivo_rechazo": "Otros motivos",
+      "precio_oferta": 90.0,
+      "ahorro_pct": 0.0
+    },
+    {
+      "id": "OFR0300106",
+      "timestamp": "2026-06-10 00:00:00",
+      "cliente_id": "CLI099997",
+      "canal": "Digital",
+      "oferta_id": "OF009",
+      "oferta_nombre": "Internet + Fijo Hogar",
+      "es_movistar_total": false,
+      "estado": "RECHAZADA",
+      "motivo_rechazo": "Otros motivos",
+      "precio_oferta": 119.9,
+      "ahorro_pct": 0.0
+    },
+    {
+      "id": "OFR0300101",
+      "timestamp": "2026-06-10 00:00:00",
+      "cliente_id": "CLI099995",
+      "canal": "Tienda",
+      "oferta_id": "OF021",
+      "oferta_nombre": "Movistar Total Plus",
+      "es_movistar_total": true,
+      "estado": "ACEPTADA",
+      "motivo_rechazo": null,
+      "precio_oferta": 189.9,
+      "ahorro_pct": 35.0
+    },
+    {
+      "id": "OFR0300096",
+      "timestamp": "2026-06-10 00:00:00",
+      "cliente_id": "CLI099994",
+      "canal": "Digital",
+      "oferta_id": "OF011",
+      "oferta_nombre": "Upgrade a Plan Plus",
+      "es_movistar_total": false,
+      "estado": "RECHAZADA",
+      "motivo_rechazo": "Precio muy alto",
+      "precio_oferta": 20.0,
+      "ahorro_pct": 0.0
+    },
+    {
+      "id": "OFR0300089",
+      "timestamp": "2026-06-10 00:00:00",
+      "cliente_id": "CLI099992",
+      "canal": "Call Out",
+      "oferta_id": "OF018",
+      "oferta_nombre": "Paquete Seguridad Digital",
+      "es_movistar_total": false,
+      "estado": "RECHAZADA",
+      "motivo_rechazo": "Precio muy alto",
+      "precio_oferta": 12.9,
+      "ahorro_pct": 0.0
+    },
+    {
+      "id": "OFR0300084",
+      "timestamp": "2026-06-10 00:00:00",
+      "cliente_id": "CLI099991",
+      "canal": "Call Out",
+      "oferta_id": "OF012",
+      "oferta_nombre": "Upgrade a Plan Max",
+      "es_movistar_total": false,
+      "estado": "ACEPTADA",
+      "motivo_rechazo": null,
+      "precio_oferta": 40.0,
+      "ahorro_pct": 0.0
+    },
+    {
+      "id": "OFR0300052",
+      "timestamp": "2026-06-10 00:00:00",
+      "cliente_id": "CLI099978",
+      "canal": "Call Out",
+      "oferta_id": "OF017",
+      "oferta_nombre": "Paquete Streaming Video",
+      "es_movistar_total": false,
+      "estado": "RECHAZADA",
+      "motivo_rechazo": "Otros motivos",
+      "precio_oferta": 19.9,
+      "ahorro_pct": 0.0
+    },
+    {
+      "id": "OFR0300050",
+      "timestamp": "2026-06-10 00:00:00",
+      "cliente_id": "CLI099977",
+      "canal": "Digital",
+      "oferta_id": "OF008",
+      "oferta_nombre": "Internet + TV Hogar",
+      "es_movistar_total": false,
+      "estado": "NO_CONTACTADO",
+      "motivo_rechazo": null,
+      "precio_oferta": 129.9,
+      "ahorro_pct": 0.0
+    },
+    {
+      "id": "OFR0300037",
+      "timestamp": "2026-06-10 00:00:00",
+      "cliente_id": "CLI099973",
+      "canal": "Tienda",
+      "oferta_id": "OF011",
+      "oferta_nombre": "Upgrade a Plan Plus",
+      "es_movistar_total": false,
+      "estado": "RECHAZADA",
+      "motivo_rechazo": "Desconfianza / mala experiencia",
+      "precio_oferta": 20.0,
+      "ahorro_pct": 0.0
+    },
+    {
+      "id": "OFR0300034",
+      "timestamp": "2026-06-10 00:00:00",
+      "cliente_id": "CLI099973",
+      "canal": "Digital",
+      "oferta_id": "OF019",
+      "oferta_nombre": "Paquete Roaming Internacional",
+      "es_movistar_total": false,
+      "estado": "RECHAZADA",
+      "motivo_rechazo": "No necesita el servicio",
+      "precio_oferta": 29.9,
+      "ahorro_pct": 0.0
+    }
+  ]
+}

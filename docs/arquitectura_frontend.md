@@ -143,7 +143,7 @@ badge de motor (§6) existe precisamente para cerrar ese hueco en el análisis L
 | `evaluarNBO(id, canal, motivos, ctx)` | `POST /api/recomendaciones/evaluar` | Recalcula con señales de contexto |
 | `enviarPreferenciaMT(recId, pref)` | `POST /api/recomendaciones/{id}/preferencia-mt` | Resuelve la ambigüedad MT |
 | `registrarGestion(datos)` | `POST /api/gestion/registro` | Persiste la venta en el CSV E2E |
-| `getDashboardMetrics()` | `GET /api/gestion/dashboard` | KPIs del tablero |
+| `getDashboardMetrics(scope)` | `GET /api/gestion/dashboard?scope=` | KPIs del tablero (`consolidado` \| `historico` \| `sesion`) |
 | `registrarEvento(data)` | `POST /api/eventos` | Telemetría del funnel |
 | `generarPitchIA(...)` / `generarRebateIA(...)` | Legacy AI | Speech generativo |
 | `getSpeechSimulaciones()` | `GET /api/speech/simulaciones` | Catálogo de llamadas demo |

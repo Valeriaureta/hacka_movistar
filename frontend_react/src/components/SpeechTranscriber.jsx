@@ -15,6 +15,7 @@ import {
   PhoneCall
 } from 'lucide-react';
 import { api } from '../services/api';
+import { useTheme } from '../context/ThemeContext';
 
 const SIMULACIONES_LOCAL = {
   call_in_averia_fibra: {
@@ -90,6 +91,7 @@ export function SpeechTranscriber({
   const timerRef = useRef(null);
   const simTimerRef = useRef(null);
   const animAudioRef = useRef(null);
+  const chatContainerRef = useRef(null);
   const chatEndRef = useRef(null);
 
   // Asegurar que si cambia el tipo ('call_in' vs 'call_out') se actualice la clave seleccionada
@@ -114,9 +116,14 @@ export function SpeechTranscriber({
     return () => { isMounted = false; };
   }, []);
 
-  // Auto-scroll al final del chat de transcripción
+  // Auto-scroll contenido SOLO dentro del div del chat (sin mover la ventana principal)
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
   }, [transcript]);
 
   // Temporizador de duración de llamada y ondas de audio
@@ -216,6 +223,8 @@ export function SpeechTranscriber({
     }
   };
 
+  const { isDark } = useTheme();
+
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60).toString().padStart(2, '0');
     const s = (secs % 60).toString().padStart(2, '0');
@@ -226,25 +235,37 @@ export function SpeechTranscriber({
   const currentSim = selectedSimKey && simulaciones[selectedSimKey] ? simulaciones[selectedSimKey] : (simKeys.length > 0 ? simulaciones[simKeys[0]] : null);
 
   return (
-    <div className="bg-slate-900 border border-slate-700/70 rounded-2xl p-4 shadow-2xl text-slate-100 flex flex-col gap-4">
+    <div className={`border rounded-2xl p-4 shadow-xl flex flex-col gap-4 transition-all duration-300 ${
+      isDark 
+        ? 'bg-[#061426]/90 border-[#005C84]/40 text-slate-100 shadow-black/40' 
+        : 'bg-white border-[#005C84]/15 text-[#002D42] shadow-[#005C84]/10'
+    }`}>
       {/* Header del Widget */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+      <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3 ${
+        isDark ? 'border-[#005C84]/20' : 'border-slate-100'
+      }`}>
         <div className="flex items-center gap-2.5">
-          <div className={`p-2.5 rounded-xl ${isPlayingSim ? 'bg-rose-500/20 text-rose-400 animate-pulse' : 'bg-blue-500/20 text-blue-400'}`}>
+          <div className={`p-2.5 rounded-xl ${
+            isPlayingSim 
+              ? 'bg-rose-500/20 text-rose-500 animate-pulse' 
+              : isDark ? 'bg-[#00C6D7]/20 text-[#00C6D7]' : 'bg-[#005C84]/10 text-[#005C84]'
+          }`}>
             <Headphones className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h4 className="font-bold text-sm text-white">
+              <h4 className={`font-bold text-sm leading-tight ${isDark ? 'text-white' : 'text-[#005C84]'}`}>
                 Speech-to-Text & Transcripción Diarizada HD
               </h4>
               {isPlayingSim && (
-                <span className="flex items-center gap-1 text-[11px] font-mono text-rose-400 bg-rose-950/80 px-2 py-0.5 rounded-full border border-rose-800/60">
+                <span className={`flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-full border ${
+                  isDark ? 'text-rose-400 bg-rose-950/80 border-rose-800/60' : 'text-rose-700 bg-rose-50 border-rose-200 font-bold'
+                }`}>
                   <Radio className="w-3 h-3 animate-ping text-rose-500" /> EN VIVO ({formatTime(callDuration)})
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-400">
+            <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-[#515559]'}`}>
               Canales estéreo separados (Asesor Diadema / Cliente Línea Telefónica) + LLM Post-Hoc
             </p>
           </div>
@@ -252,7 +273,7 @@ export function SpeechTranscriber({
 
         {/* Selector de Simulación */}
         <div className="flex items-center gap-2">
-          <label className="text-[11px] font-bold text-slate-400 shrink-0">Caso Demo:</label>
+          <label className={`text-[11px] font-bold shrink-0 ${isDark ? 'text-slate-400' : 'text-[#515559]'}`}>Caso Demo:</label>
           <select
             value={selectedSimKey}
             onChange={(e) => {
@@ -260,7 +281,11 @@ export function SpeechTranscriber({
               handleReset();
             }}
             disabled={isPlayingSim}
-            className="text-xs bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500 shadow-inner"
+            className={`text-xs rounded-xl px-3 py-2 focus:outline-none transition shadow-inner font-medium ${
+              isDark 
+                ? 'bg-[#030914] border border-[#005C84]/40 text-slate-200 focus:border-[#00C6D7]' 
+                : 'bg-slate-50 border border-slate-300 text-slate-800 focus:border-[#005C84]'
+            }`}
           >
             {simKeys.map(k => (
               <option key={k} value={k}>
@@ -272,15 +297,25 @@ export function SpeechTranscriber({
       </div>
 
       {/* Visualizador de Ondas de Audio y Estado de CTI */}
-      <div className="bg-slate-950/90 border border-slate-800/90 rounded-xl p-2.5 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
-          <Activity className={`w-4 h-4 ${isPlayingSim ? 'text-emerald-400 animate-spin' : 'text-slate-600'}`} />
-          <span>Audio CTI:</span>
-          <span className={isPlayingSim ? "text-emerald-400 font-semibold" : "text-slate-500"}>
+      <div className={`border rounded-xl p-2.5 flex items-center justify-between gap-3 ${
+        isDark ? 'bg-[#030914]/90 border-[#005C84]/30' : 'bg-slate-50 border-slate-200'
+      }`}>
+        <div className="flex items-center gap-2 text-xs font-mono">
+          <Activity className={`w-4 h-4 ${
+            isPlayingSim ? 'text-emerald-500 animate-spin' : isDark ? 'text-slate-600' : 'text-slate-400'
+          }`} />
+          <span className={isDark ? 'text-slate-400' : 'text-slate-600'}>Audio CTI:</span>
+          <span className={
+            isPlayingSim 
+              ? 'text-emerald-500 font-bold' 
+              : transcript.length > 0 
+              ? (isDark ? 'text-[#00C6D7] font-semibold' : 'text-[#005C84] font-semibold')
+              : (isDark ? 'text-slate-500' : 'text-slate-400')
+          }>
             {isPlayingSim ? "TRANSMITIENDO EN VIVO (ESTÉREO DIARIZADO)" : transcript.length > 0 ? "LLAMADA FINALIZADA" : "LISTO PARA SIMULACIÓN"}
           </span>
           {currentSim && (
-            <span className="hidden md:inline-block text-slate-500">• {currentSim.descripcion}</span>
+            <span className={`hidden md:inline-block ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>• {currentSim.descripcion}</span>
           )}
         </div>
 
@@ -290,7 +325,9 @@ export function SpeechTranscriber({
             <div
               key={idx}
               className={`w-1 rounded-full transition-all duration-150 ${
-                isPlayingSim ? 'bg-gradient-to-t from-blue-500 to-cyan-300' : 'bg-slate-700'
+                isPlayingSim 
+                  ? 'bg-gradient-to-t from-[#005C84] to-[#00C6D7]' 
+                  : isDark ? 'bg-slate-700' : 'bg-slate-300'
               }`}
               style={{ height: isPlayingSim ? `${lvl}%` : '20%' }}
             />
@@ -299,12 +336,17 @@ export function SpeechTranscriber({
       </div>
 
       {/* Caja de Transcripción en Vivo (Chat Diarizado) */}
-      <div className="bg-slate-950/95 border border-slate-800/80 rounded-xl p-3.5 h-64 overflow-y-auto flex flex-col gap-2.5 text-xs font-sans shadow-inner">
+      <div 
+        ref={chatContainerRef}
+        className={`border rounded-xl p-3.5 h-64 overflow-y-auto flex flex-col gap-2.5 text-xs font-sans shadow-inner ${
+          isDark ? 'bg-[#030914]/95 border-[#005C84]/30' : 'bg-slate-50/80 border-slate-200'
+        }`}
+      >
         {transcript.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-slate-500 gap-2.5">
-            <PhoneCall className="w-9 h-9 stroke-[1.5] text-slate-600 animate-pulse" />
+          <div className={`h-full flex flex-col items-center justify-center gap-2.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+            <PhoneCall className={`w-9 h-9 stroke-[1.5] animate-pulse ${isDark ? 'text-slate-600' : 'text-slate-400'}`} />
             <p className="text-center max-w-md">
-              Haz clic en <strong className="text-blue-400">"Reproducir Llamada Demo"</strong> para ver el diálogo en tiempo real o en <strong className="text-amber-400">"Carga Inmediata"</strong> para ver todo el caso instantáneamente.
+              Haz clic en <strong className={isDark ? 'text-blue-400' : 'text-[#005C84]'}>"Reproducir Llamada Demo"</strong> para ver el diálogo en tiempo real o en <strong className={isDark ? 'text-amber-400' : 'text-amber-700'}>"Carga Inmediata"</strong> para ver todo el caso instantáneamente.
             </p>
           </div>
         ) : (
@@ -316,22 +358,30 @@ export function SpeechTranscriber({
                 className={`flex gap-2.5 max-w-[88%] animate-fadeIn ${isAsesor ? 'self-start' : 'self-end flex-row-reverse'}`}
               >
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 shadow-md ${
-                  isAsesor ? 'bg-blue-600/90 text-white' : 'bg-emerald-600/90 text-white'
+                  isAsesor ? 'bg-[#005C84] text-white' : 'bg-[#7AB800] text-white'
                 }`}>
                   {isAsesor ? <Bot className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
                 </div>
                 <div className={`p-3 rounded-2xl shadow-sm border ${
                   isAsesor 
-                    ? 'bg-slate-800/90 border-slate-700 text-slate-200 rounded-tl-none' 
-                    : 'bg-emerald-950/60 border-emerald-800/70 text-emerald-100 rounded-tr-none'
+                    ? isDark 
+                      ? 'bg-[#0b1c34] border-[#005C84]/40 text-slate-100 rounded-tl-none' 
+                      : 'bg-white border-slate-200 text-[#002D42] rounded-tl-none shadow-sm'
+                    : isDark 
+                      ? 'bg-emerald-950/60 border-emerald-800/70 text-emerald-100 rounded-tr-none' 
+                      : 'bg-emerald-50 border-emerald-200 text-emerald-950 rounded-tr-none shadow-sm'
                 }`}>
                   <div className="flex items-center justify-between gap-3 mb-1">
-                    <span className="font-bold text-[10px] uppercase tracking-wider text-slate-400">
+                    <span className={`font-bold text-[10px] uppercase tracking-wider ${
+                      isAsesor 
+                        ? (isDark ? 'text-[#00C6D7]' : 'text-[#005C84]') 
+                        : (isDark ? 'text-emerald-300' : 'text-emerald-700')
+                    }`}>
                       {isAsesor ? '🎧 Asesor Movistar' : '👤 Cliente'}
                     </span>
-                    <span className="text-[10px] text-slate-500 font-mono">{item.timestamp}</span>
+                    <span className={`text-[10px] font-mono ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{item.timestamp}</span>
                   </div>
-                  <p className="leading-relaxed text-xs">{item.text}</p>
+                  <p className="leading-relaxed text-xs font-normal">{item.text}</p>
                 </div>
               </div>
             );
@@ -347,7 +397,7 @@ export function SpeechTranscriber({
           {!isPlayingSim ? (
             <button
               onClick={handleStartSim}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-xs font-bold text-white transition shadow-lg shadow-blue-600/20 cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#005C84] hover:bg-[#0078A8] active:scale-95 text-xs font-bold text-white transition shadow-md cursor-pointer"
             >
               <Play className="w-3.5 h-3.5 fill-current" /> Reproducir Llamada Demo
             </button>
@@ -360,21 +410,29 @@ export function SpeechTranscriber({
             </button>
           )}
 
-          {/* Botón Carga Instantánea (Para agilizar la demo ante el jurado) */}
+          {/* Botón Carga Instantánea */}
           <button
             onClick={handleCargarInmediato}
             disabled={isPlayingSim}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition shadow-md cursor-pointer disabled:opacity-50"
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition shadow-sm cursor-pointer disabled:opacity-50 border ${
+              isDark 
+                ? 'bg-[#0a1b30] hover:bg-[#0e2440] text-slate-200 border-[#005C84]/40' 
+                : 'bg-slate-100 hover:bg-slate-200 text-[#002D42] border-slate-300'
+            }`}
             title="Carga el diálogo completo al instante sin esperar"
           >
-            <Zap className="w-3.5 h-3.5 text-amber-400" /> Carga Inmediata
+            <Zap className="w-3.5 h-3.5 text-amber-500" /> Carga Inmediata
           </button>
 
           {/* Botón Reiniciar */}
           {(transcript.length > 0 || isPlayingSim) && (
             <button
               onClick={handleReset}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 border border-slate-700 transition cursor-pointer"
+              className={`p-2 rounded-xl border transition cursor-pointer ${
+                isDark 
+                  ? 'bg-[#0a1b30] hover:bg-[#0e2440] text-slate-400 hover:text-slate-200 border-[#005C84]/40' 
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-[#002D42] border-slate-300'
+              }`}
               title="Limpiar Conversación"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -386,7 +444,7 @@ export function SpeechTranscriber({
         <button
           onClick={handleEjecutarAnalisis}
           disabled={transcript.length === 0 || isAnalyzing}
-          className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 active:scale-95 text-xs font-black text-white shadow-xl shadow-indigo-500/25 transition disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+          className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-[#005C84] hover:from-purple-500 hover:to-[#0078A8] active:scale-95 text-xs font-black text-white shadow-md transition disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
         >
           <Sparkles className={`w-4 h-4 ${isAnalyzing ? 'animate-spin' : 'text-amber-300'}`} />
           {isAnalyzing ? "Analizando con LLM..." : "Finalizar & Analizar con IA"}

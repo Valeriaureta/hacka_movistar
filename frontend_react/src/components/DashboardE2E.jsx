@@ -3,7 +3,7 @@ import {
   TrendingUp, Users, CheckCircle2, XCircle, ShieldCheck, 
   RefreshCw, Award, ArrowUpRight, BarChart3, PieChart as PieIcon,
   Activity, Layers, Filter, Eye, AlertTriangle, ChevronRight, Zap,
-  Headphones, BrainCircuit, MessageSquare, Tag, Radio
+  Headphones, BrainCircuit, MessageSquare, Tag, Radio, Database
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, 
@@ -21,11 +21,12 @@ export default function DashboardE2E() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [funnelViewMode, setFunnelViewMode] = useState('both'); // 'both' | 'chart' | 'steps'
+  const [scope, setScope] = useState('consolidado'); // 'consolidado' | 'historico' | 'sesion'
   const { isDark } = useTheme();
 
   const fetchMetrics = async () => {
     setLoading(true);
-    const metrics = await api.getDashboardMetrics();
+    const metrics = await api.getDashboardMetrics(scope);
     if (metrics) {
       setData(metrics);
     }
@@ -37,7 +38,7 @@ export default function DashboardE2E() {
     // Polling cada 15 segundos para actualización en vivo
     const interval = setInterval(fetchMetrics, 15000);
     return () => clearInterval(interval);
-  }, []);
+  }, [scope]);
 
   if (loading && !data) {
     return (
@@ -51,11 +52,38 @@ export default function DashboardE2E() {
 
   const kpis = data?.kpis || {
     total: 0,
+    contactados: 0,
     aceptadas: 0,
     rechazadas: 0,
     tasa_conversion: 0,
     share_mt: 0,
     mt_aceptadas: 0
+  };
+
+  // Procedencia real de lo que se está viendo, informada por el backend
+  const fuente = data?.fuente || null;
+  const scopeActivo = data?.scope || scope;
+  const nFmt = (n) => (n ?? 0).toLocaleString('es-PE');
+
+  const SCOPES = [
+    { id: 'consolidado', label: 'Consolidado', hint: 'Histórico de campañas + gestiones registradas en esta sesión' },
+    { id: 'historico', label: 'Histórico', hint: 'Solo el histórico real de campañas del backend' },
+    { id: 'sesion', label: 'Sesión en vivo', hint: 'Solo las gestiones registradas desde la plataforma' }
+  ];
+
+  const descripcionFuente = () => {
+    if (!fuente) return 'Esperando respuesta del backend…';
+    const h = fuente.historico;
+    const vivo = `${nFmt(fuente.gestiones_en_vivo)} gestiones en vivo`;
+    if (scopeActivo === 'sesion') {
+      return `${vivo} · registradas end-to-end desde los 5 canales`;
+    }
+    if (!h) {
+      return `Histórico no disponible en este entorno · mostrando ${vivo}`;
+    }
+    const periodo = `${h.periodo_desde} a ${h.periodo_hasta}`;
+    const base = `${nFmt(h.ofrecimientos)} ofrecimientos reales · ${nFmt(h.clientes_unicos)} clientes · ${periodo} · ${h.archivo}`;
+    return scopeActivo === 'consolidado' ? `${base} + ${vivo}` : base;
   };
 
   const rawFunnel = data?.funnel || [];
@@ -103,7 +131,7 @@ export default function DashboardE2E() {
           <div className="space-y-1 text-xs">
             <div className="flex justify-between gap-4">
               <span className="opacity-80">Volumen:</span>
-              <span className="font-extrabold text-sm text-[#00C6D7]">{d.cantidad.toLocaleString()} clientes</span>
+              <span className="font-extrabold text-sm text-[#00C6D7]">{d.cantidad.toLocaleString()} {d.unidad || 'registros'}</span>
             </div>
             <div className="flex justify-between gap-4">
               <span className="opacity-80">% del Total Evaluado:</span>
@@ -168,16 +196,44 @@ export default function DashboardE2E() {
           <p className={`text-sm md:text-base mt-1 font-medium ${isDark ? 'text-slate-300' : 'text-[#515559]'}`}>
             Supervisión integral del ciclo de personalización comercial y cumplimiento de metas Movistar Total.
           </p>
+
+          {/* Procedencia del dato: qué está alimentando exactamente este tablero */}
+          <div className={`flex items-start gap-2 mt-3 text-xs font-medium ${isDark ? 'text-slate-400' : 'text-[#515559]'}`}>
+            <Database className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#00C6D7]" />
+            <span className="leading-snug">{descripcionFuente()}</span>
+          </div>
         </div>
 
-        <button
-          onClick={fetchMetrics}
-          disabled={loading}
-          className="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-[#005C84] to-[#00C6D7] hover:from-[#00C6D7] hover:to-[#005C84] text-white text-sm font-extrabold rounded-2xl transition shadow-lg shadow-[#00C6D7]/25 cursor-pointer disabled:opacity-50"
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          Sincronizar Datos
-        </button>
+        <div className="flex flex-col items-stretch md:items-end gap-3 shrink-0">
+          {/* Selector de alcance de los datos */}
+          <div className={`flex items-center p-1 rounded-xl border self-start md:self-auto ${
+            isDark ? 'bg-[#030914] border-[#005C84]/40' : 'bg-slate-100 border-slate-200'
+          }`}>
+            {SCOPES.map(({ id, label, hint }) => (
+              <button
+                key={id}
+                onClick={() => setScope(id)}
+                title={hint}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  scope === id
+                    ? 'bg-[#005C84] text-white shadow'
+                    : isDark ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-[#005C84]'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={fetchMetrics}
+            disabled={loading}
+            className="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-[#005C84] to-[#00C6D7] hover:from-[#00C6D7] hover:to-[#005C84] text-white text-sm font-extrabold rounded-2xl transition shadow-lg shadow-[#00C6D7]/25 cursor-pointer disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Sincronizar Datos
+          </button>
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -446,11 +502,7 @@ export default function DashboardE2E() {
                                 {stageName}
                               </h3>
                               <span className={`text-xs md:text-sm font-medium block ${isDark ? 'text-slate-300' : 'text-[#515559]'}`}>
-                                {idx === 0 && 'Universo calificado con scoring predictivo Movistar'}
-                                {idx === 1 && 'Clientes contactados en los 5 canales de atención'}
-                                {idx === 2 && 'Top 3 NBO sugeridas por el motor de reglas e IA'}
-                                {idx === 3 && 'Aceptación y confirmación comercial'}
-                                {idx === 4 && 'Cross-selling / Upselling convergente exitoso'}
+                                {step.detalle}
                               </span>
                             </div>
                           </div>
@@ -461,7 +513,7 @@ export default function DashboardE2E() {
                                 {step.cantidad.toLocaleString()}
                               </span>
                               <span className={`text-xs md:text-sm ml-1.5 font-bold ${isDark ? 'text-slate-300' : 'text-[#515559]'}`}>
-                                clientes
+                                {step.unidad || 'registros'}
                               </span>
                             </div>
                             <div className={`px-2.5 py-1 rounded-lg text-xs font-black ${color.badge} shrink-0`}>

@@ -81,7 +81,7 @@ router aparte. `dashboard_router` y `speech_router` sí son `APIRouter`.
 | Método | Ruta | Devuelve |
 |---|---|---|
 | `POST` | `/api/gestion/registro` | Añade una fila al CSV de interacciones |
-| `GET` | `/api/gestion/dashboard` | KPIs, funnel, canales y motivos de rechazo |
+| `GET` | `/api/gestion/dashboard?scope=` | KPIs, funnel, canales y motivos de rechazo (`consolidado` \| `historico` \| `sesion`) |
 
 ### Speech Analytics (`speech_router.py`, prefijo `/api/speech`)
 
@@ -219,15 +219,48 @@ vacío en una presentación.
 Columnas: `id, timestamp, cliente_id, canal, oferta_id, oferta_nombre,
 es_movistar_total, estado, motivo_rechazo, precio_oferta, ahorro_pct`.
 
-`GET /api/gestion/dashboard` calcula sobre ese CSV: total, aceptadas, rechazadas,
-tasa de conversión, share MT sobre aceptadas, desglose por canal y ranking de
-motivos de rechazo.
+### Línea base histórica (`dashboard_baseline.py`)
 
-> **Dos advertencias sobre el funnel.** Las dos primeras etapas están
-> *escaladas* artificialmente (`total*3 + 120` y `total*2 + 80`) para que el
-> embudo se vea proporcionado en la demo — no son mediciones. Y el CSV se lee y
-> reescribe entero en cada registro, sin bloqueo: con escrituras concurrentes
-> puede perderse una fila.
+El tablero no vive solo de las gestiones de la sesión: su línea base es el
+histórico real de campañas, `data/raw/historial_campanias.csv` (300 112
+ofrecimientos, 95 019 clientes, ene–jun 2026).
+
+Ese CSV pesa 47 MB y está en `.gitignore`, así que **no** puede leerse por
+request (el dashboard hace polling cada 15 s) ni viajar al bundle de Vercel.
+`dashboard_baseline.py` lo precalcula una vez a
+`data/processed/dashboard/baseline_historico.json` (~6 KB, versionado e
+incluido en `includeFiles`). Regenerar con:
+
+```bash
+python -m backend.dashboard_baseline
+```
+
+Si el JSON falta pero el CSV crudo está presente, `cargar_baseline()` lo
+reconstruye y cachea en memoria. Si no hay ninguno de los dos, el endpoint
+degrada a `scope=sesion` y lo reporta en `fuente.historico_disponible`.
+
+### Alcances de `GET /api/gestion/dashboard`
+
+| `scope` | Fuente |
+|---|---|
+| `historico` | Solo la línea base precalculada del histórico real |
+| `sesion` | Solo `interacciones_e2e.csv` (gestiones registradas en vivo) |
+| `consolidado` *(default)* | Ambas sumadas por etapa, canal y motivo |
+
+El funnel se sirve en **una sola unidad (ofrecimientos)** y es monotónicamente
+decreciente, con las cuatro etapas medidas contra datos reales: evaluados →
+contactados (`contactabilidad == contactado`) → aceptadas → MT ganados. Cada
+etapa viaja con su `detalle` y `unidad`, así que el frontend ya no rotula las
+etapas por índice.
+
+Los motivos de rechazo se normalizan a una etiqueta canónica
+(`MOTIVOS_CANONICOS`) porque el histórico usa códigos snake_case (`precio`,
+`no_confia`) y la UI manda prosa (`"Precio muy alto"`): sin eso el donut
+partiría la misma causa en dos porciones.
+
+> **Advertencia vigente.** El CSV de interacciones se lee y reescribe entero en
+> cada registro, sin bloqueo: con escrituras concurrentes puede perderse una
+> fila.
 
 ---
 

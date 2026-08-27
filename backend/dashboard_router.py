@@ -1,28 +1,20 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
-from pathlib import Path
 import pandas as pd
-import numpy as np
 from datetime import datetime
-import os
+
+try:
+    from .dashboard_baseline import calcular_kpis, cargar_baseline, construir_funnel, normalizar_motivo
+    from .gestiones_store import agregar_gestion, descripcion, leer_gestiones, siguiente_id
+except ImportError:
+    from dashboard_baseline import calcular_kpis, cargar_baseline, construir_funnel, normalizar_motivo
+    from gestiones_store import agregar_gestion, descripcion, leer_gestiones, siguiente_id
 
 router = APIRouter(prefix="/api/gestion", tags=["Dashboard & E2E"])
 
-BASE_DIR = Path(__file__).resolve().parents[1]
-DATA_DIR = BASE_DIR / "data"
-INTERACCIONES_PATH = (
-    Path("/tmp") / "interacciones_e2e.csv"
-    if os.getenv("VERCEL")
-    else DATA_DIR / "interacciones_e2e.csv"
-)
-
-# Columnas del archivo de registro
-COLUMNAS_INTERACCIONES = [
-    "id", "timestamp", "cliente_id", "canal", "oferta_id", 
-    "oferta_nombre", "es_movistar_total", "estado", 
-    "motivo_rechazo", "precio_oferta", "ahorro_pct"
-]
+# Alcances soportados por GET /dashboard
+SCOPES = ("consolidado", "historico", "sesion")
 
 class RegistroGestion(BaseModel):
     cliente_id: str
@@ -57,10 +49,10 @@ def registrar_gestion(gestion: RegistroGestion):
     try:
         _init_interacciones_file()
         df = pd.read_csv(INTERACCIONES_PATH)
-        
+
         nuevo_id = f"G{str(len(df) + 1).zfill(4)}"
         ahora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
+
         nueva_fila = {
             "id": nuevo_id,
             "timestamp": ahora,
@@ -74,90 +66,169 @@ def registrar_gestion(gestion: RegistroGestion):
             "precio_oferta": gestion.precio_oferta,
             "ahorro_pct": gestion.ahorro_pct
         }
-        
+
         df = pd.concat([df, pd.DataFrame([nueva_fila])], ignore_index=True)
         df.to_csv(INTERACCIONES_PATH, index=False)
-        
+
         return {"status": "success", "id": nuevo_id, "message": "Gestión registrada exitosamente"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al registrar gestión: {str(e)}")
 
+
+def _bloque_vacio() -> Dict[str, Any]:
+    return {
+        "kpis": calcular_kpis(0, 0, 0, 0, 0),
+        "funnel": construir_funnel(0, 0, 0, 0),
+        "canales": [],
+        "motivos_rechazo": [],
+        "ultimas_gestiones": [],
+    }
+
+
+def _agregar_sesion() -> Dict[str, Any]:
+    """Agrega las gestiones registradas en vivo desde la plataforma."""
+    _init_interacciones_file()
+    df = pd.read_csv(INTERACCIONES_PATH)
+    if df.empty:
+        return _bloque_vacio()
+
+    df["estado"] = df["estado"].astype(str).str.strip().str.upper()
+    df["es_movistar_total"] = df["es_movistar_total"].astype(str).str.strip().str.lower().isin(["true", "1"])
+
+    es_aceptada = df["estado"] == "ACEPTADA"
+    es_rechazada = df["estado"] == "RECHAZADA"
+
+    total = len(df)
+    aceptadas = int(es_aceptada.sum())
+    rechazadas = int(es_rechazada.sum())
+    contactados = aceptadas + rechazadas
+    mt_aceptadas = int((es_aceptada & df["es_movistar_total"]).sum())
+
+    canales = []
+    for canal, grupo in df.groupby("canal"):
+        g_aceptadas = int((grupo["estado"] == "ACEPTADA").sum())
+        g_rechazadas = int((grupo["estado"] == "RECHAZADA").sum())
+        g_total = len(grupo)
+        canales.append({
+            "canal": str(canal),
+            "total": g_total,
+            "contactados": g_aceptadas + g_rechazadas,
+            "aceptadas": g_aceptadas,
+            "conversion": round((g_aceptadas / g_total) * 100, 1) if g_total else 0,
+        })
+
+    motivos_series = (
+        df.loc[es_rechazada, "motivo_rechazo"].map(normalizar_motivo).dropna().value_counts()
+    )
+    motivos = [
+        {"motivo": str(motivo), "cantidad": int(cantidad)}
+        for motivo, cantidad in motivos_series.items()
+    ]
+
+    ultimas = df.tail(10).iloc[::-1].replace({np.nan: None}).to_dict(orient="records")
+    for fila in ultimas:
+        fila["motivo_rechazo"] = normalizar_motivo(fila.get("motivo_rechazo"))
+
+    return {
+        "kpis": calcular_kpis(total, contactados, aceptadas, rechazadas, mt_aceptadas),
+        "funnel": construir_funnel(total, contactados, aceptadas, mt_aceptadas),
+        "canales": canales,
+        "motivos_rechazo": motivos,
+        "ultimas_gestiones": ultimas,
+    }
+
+
+def _sumar_por_clave(bloques: List[List[Dict[str, Any]]], clave: str, campos: List[str]) -> List[Dict[str, Any]]:
+    """Fusiona listas de agregados sumando `campos` sobre la misma `clave`."""
+    acumulado: Dict[str, Dict[str, Any]] = {}
+    for bloque in bloques:
+        for item in bloque:
+            destino = acumulado.setdefault(item[clave], {clave: item[clave], **{c: 0 for c in campos}})
+            for campo in campos:
+                destino[campo] += int(item.get(campo, 0) or 0)
+    return list(acumulado.values())
+
+
+def _combinar(historico: Dict[str, Any], sesion: Dict[str, Any]) -> Dict[str, Any]:
+    """Suma la linea base historica y las gestiones en vivo en un solo tablero."""
+    k_hist, k_ses = historico["kpis"], sesion["kpis"]
+    total = k_hist["total"] + k_ses["total"]
+    contactados = k_hist["contactados"] + k_ses["contactados"]
+    aceptadas = k_hist["aceptadas"] + k_ses["aceptadas"]
+    rechazadas = k_hist["rechazadas"] + k_ses["rechazadas"]
+    mt_aceptadas = k_hist["mt_aceptadas"] + k_ses["mt_aceptadas"]
+
+    canales = _sumar_por_clave(
+        [historico["canales"], sesion["canales"]], "canal", ["total", "contactados", "aceptadas"]
+    )
+    for canal in canales:
+        canal["conversion"] = round((canal["aceptadas"] / canal["total"]) * 100, 1) if canal["total"] else 0
+    canales.sort(key=lambda c: c["total"], reverse=True)
+
+    motivos = _sumar_por_clave(
+        [historico["motivos_rechazo"], sesion["motivos_rechazo"]], "motivo", ["cantidad"]
+    )
+    motivos.sort(key=lambda m: m["cantidad"], reverse=True)
+
+    # Las gestiones en vivo llevan timestamp de hoy, asi que encabezan la tabla
+    # aunque el historico aporte cientos de miles de filas.
+    ultimas = sorted(
+        historico["ultimas_gestiones"] + sesion["ultimas_gestiones"],
+        key=lambda g: str(g.get("timestamp") or ""),
+        reverse=True,
+    )[:10]
+
+    return {
+        "kpis": calcular_kpis(total, contactados, aceptadas, rechazadas, mt_aceptadas),
+        "funnel": construir_funnel(total, contactados, aceptadas, mt_aceptadas),
+        "canales": canales,
+        "motivos_rechazo": motivos,
+        "ultimas_gestiones": ultimas,
+    }
+
+
 @router.get("/dashboard")
-def get_dashboard_metrics():
+def get_dashboard_metrics(scope: str = Query("consolidado", pattern="^(consolidado|historico|sesion)$")):
+    """Metricas del funnel E2E.
+
+    - `historico`: linea base real precalculada desde `data/raw/historial_campanias.csv`.
+    - `sesion`: solo las gestiones registradas en vivo desde la plataforma.
+    - `consolidado`: ambas sumadas (por defecto).
+    """
     try:
-        _init_interacciones_file()
-        df = pd.read_csv(INTERACCIONES_PATH)
-        
-        total_gestiones = len(df)
-        if total_gestiones == 0:
-            return {
-                "kpis": {"total": 0, "aceptadas": 0, "rechazadas": 0, "tasa_conversion": 0, "share_mt": 0},
-                "funnel": [],
-                "canales": [],
-                "motivos_rechazo": [],
-                "ultimas_gestiones": []
-            }
-        
-        aceptadas = len(df[df["estado"] == "ACEPTADA"])
-        rechazadas = len(df[df["estado"] == "RECHAZADA"])
-        tasa_conversion = round((aceptadas / total_gestiones) * 100, 1) if total_gestiones > 0 else 0
-        
-        # Share Movistar Total sobre aceptadas
-        mt_aceptadas = len(df[(df["estado"] == "ACEPTADA") & (df["es_movistar_total"] == True)])
-        share_mt = round((mt_aceptadas / aceptadas) * 100, 1) if aceptadas > 0 else 0
-        
-        # 1. Funnel E2E
-        # Base total simulada + interacciones reales
-        clientes_evaluados = total_gestiones * 3 + 120 # Escala del funnel
-        contactados = total_gestiones * 2 + 80
-        funnel_data = [
-            {"etapa": "1. Clientes Evaluados (IA)", "cantidad": clientes_evaluados, "fill": "#6366f1"},
-            {"etapa": "2. Contactados Efectivos", "cantidad": contactados, "fill": "#3b82f6"},
-            {"etapa": "3. Ofertas NBO Presentadas", "cantidad": total_gestiones, "fill": "#06b6d4"},
-            {"etapa": "4. Ventas Aceptadas", "cantidad": aceptadas, "fill": "#10b981"},
-            {"etapa": "5. Movistar Total Ganados", "cantidad": mt_aceptadas, "fill": "#059669"}
-        ]
-        
-        # 2. Desglose por Canal
-        canales_list = []
-        for canal, g in df.groupby("canal"):
-            tot = len(g)
-            acep = len(g[g["estado"] == "ACEPTADA"])
-            conv = round((acep / tot) * 100, 1) if tot > 0 else 0
-            canales_list.append({
-                "canal": canal,
-                "total": tot,
-                "aceptadas": acep,
-                "conversion": conv
-            })
-            
-        # 3. Motivos de Rechazo
-        df_rechazos = df[df["estado"] == "RECHAZADA"]
-        motivos_list = []
-        if not df_rechazos.empty:
-            for motivo, count in df_rechazos["motivo_rechazo"].value_counts().items():
-                if pd.notna(motivo) and str(motivo).strip():
-                    motivos_list.append({"motivo": str(motivo), "cantidad": int(count)})
-        if not motivos_list:
-            motivos_list = [{"motivo": "Precio muy alto", "cantidad": 1}]
+        sesion = _agregar_sesion()
+        baseline = cargar_baseline()
+        historico = baseline if baseline else None
 
-        # 4. Últimas 10 gestiones para la tabla
-        df_clean = df.tail(10).iloc[::-1].replace({np.nan: None})
-        ultimas = df_clean.to_dict(orient="records")
+        if scope == "sesion" or historico is None:
+            payload = sesion
+            scope_efectivo = "sesion"
+        elif scope == "historico":
+            payload = historico
+            scope_efectivo = "historico"
+        else:
+            payload = _combinar(historico, sesion)
+            scope_efectivo = "consolidado"
 
-        return {
-            "kpis": {
-                "total": total_gestiones,
-                "aceptadas": aceptadas,
-                "rechazadas": rechazadas,
-                "tasa_conversion": tasa_conversion,
-                "share_mt": share_mt,
-                "mt_aceptadas": mt_aceptadas
+        payload = dict(payload)
+        payload["scope"] = scope_efectivo
+        payload["fuente"] = {
+            "scope_solicitado": scope,
+            "historico_disponible": historico is not None,
+            "gestiones_en_vivo": sesion["kpis"]["total"],
+            "historico": {
+                "archivo": historico["origen"]["archivo"],
+                "ofrecimientos": historico["origen"]["filas"],
+                "clientes_unicos": historico["origen"]["clientes_unicos"],
+                "periodo_desde": historico["origen"]["periodo_desde"],
+                "periodo_hasta": historico["origen"]["periodo_hasta"],
+                "generado_en": historico["generado_en"],
+            } if historico else None,
+            "en_vivo": {
+                "archivo": str(INTERACCIONES_PATH).replace("\\", "/"),
+                "gestiones": sesion["kpis"]["total"],
             },
-            "funnel": funnel_data,
-            "canales": canales_list,
-            "motivos_rechazo": motivos_list,
-            "ultimas_gestiones": ultimas
         }
+        return payload
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al calcular métricas: {str(e)}")
