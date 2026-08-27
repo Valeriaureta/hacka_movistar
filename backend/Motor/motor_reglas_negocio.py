@@ -281,7 +281,14 @@ def ajustar_score_ranking(
     if nivel_riesgo(cliente) == "alto" and precio > facturacion > 0:
         add("PENALIZA_PRECIO_CON_RIESGO_ALTO", PENALTY_HIGH_RISK_PRICE)
 
-    score = max(0.0, min(1.0, probabilidad + sum(item["value"] for item in adjustments)))
+    # Inyección de Valor Esperado Pseudo-normalizado
+    # En lugar de rankear por probabilidad pura, rankeamos por EV = P * Precio
+    # Se normaliza dividiendo entre un techo de catálogo (S/ 200.0) para mantener el dominio [0, 1]
+    MAX_PRECIO_REF = 200.0
+    ev_score = probabilidad * (precio / MAX_PRECIO_REF)
+
+    # Las penalizaciones operativas se aplican sobre el score de valor esperado
+    score = max(0.0, min(1.0, ev_score + sum(item["value"] for item in adjustments)))
     return score, adjustments
 
 

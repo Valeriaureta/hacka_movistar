@@ -1,0 +1,41 @@
+{
+  "universo_evaluable": {
+    "contactos_totales": 207046,
+    "clientes_unicos": 87402,
+    "tasa_aceptacion_base": 0.4608,
+    "rebates_excluidos": true
+  },
+  "metricas_clasificacion": [
+    {
+      "modelo": "Regresión Logística",
+      "roc_auc": 0.5911,
+      "pr_auc": 0.574,
+      "brier_score": 0.2359,
+      "log_loss": 0.6638,
+      "precision@0.5": 0.7594,
+      "recall@0.5": 0.1804,
+      "f1@0.5": 0.2916
+    },
+    {
+      "modelo": "LightGBM Regularizado",
+      "roc_auc": 0.5897,
+      "pr_auc": 0.5736,
+      "brier_score": 0.2359,
+      "log_loss": 0.6639,
+      "precision@0.5": 0.758,
+      "recall@0.5": 0.1803,
+      "f1@0.5": 0.2913
+    }
+  ],
+  "impacto_economico_10k_contactos": {
+    "pen_b2_regla_negocio": 795913.9,
+    "pen_m1_prob_pura": 804794.8,
+    "pen_m2_valor_esperado_lgb": 972159.9,
+    "pen_m2_valor_esperado_lr": 972289.2,
+    "lift_ingreso_vs_reglas_pct": 22.14,
+    "lift_ingreso_vs_prob_pura_pct": 20.8,
+    "aceptaciones_10k_b2": 5700,
+    "aceptaciones_10k_m2_ev": 5801,
+    "lift_aceptaciones_vs_reglas_pct": 1.77
+  }
+}

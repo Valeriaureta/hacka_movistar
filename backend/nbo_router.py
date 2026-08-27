@@ -30,20 +30,41 @@ DEFAULT_CLIENTES_PATH = DATA_RAW / "dataset_clientes.csv"
 DEMO_CLIENTES_PATH = DATA_PROCESSED / "demo" / "dataset_clientes_demo.csv"
 
 
-def _valor_nativo(value: Any) -> Any:
-    """Convierte valores de pandas/numpy a tipos seguros para JSON."""
-    if value is None:
+import math
+import numpy as np
+
+
+def _sanear_json(obj: Any) -> Any:
+    """Convierte recursivamente estructuras a tipos 100% compatibles con JSON estándar."""
+    if obj is None:
         return None
+    if isinstance(obj, (float, np.floating)):
+        return None if (math.isnan(obj) or math.isinf(obj)) else float(obj)
+    if isinstance(obj, (int, np.integer)):
+        return int(obj)
+    if isinstance(obj, (bool, np.bool_)):
+        return bool(obj)
+    if isinstance(obj, (pd.Timestamp,)):
+        return obj.isoformat()
     try:
-        if pd.isna(value):
+        if pd.isna(obj):
             return None
     except (TypeError, ValueError):
         pass
-    return value.item() if hasattr(value, "item") else value
+    if isinstance(obj, dict):
+        return {str(k): _sanear_json(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple, set)):
+        return [_sanear_json(v) for v in obj]
+    return obj
+
+
+def _valor_nativo(value: Any) -> Any:
+    """Convierte valores de pandas/numpy a tipos seguros para JSON."""
+    return _sanear_json(value)
 
 
 def _registro_json(record: Dict[str, Any]) -> Dict[str, Any]:
-    return {key: _valor_nativo(value) for key, value in record.items()}
+    return _sanear_json(record)
 
 class DataLoader:
     _instance = None
@@ -145,12 +166,12 @@ class NBORouter:
             "contexto": contexto,
             "recomendacion": recomendacion,
         }
-        return {
+        return _sanear_json({
             "recomendacion_id": rec_id,
             "cliente": cliente_raw,
             "motor_nbo": recomendacion,
             "fuente_datos": self.loader.runtime_info(),
-        }
+        })
 
     def crear_sesion(self, cliente_raw: Dict[str, Any], canal: str = "Tienda", contexto: Dict = None) -> Dict[str, Any]:
         ctx = contexto or self.contexto_demo(canal)

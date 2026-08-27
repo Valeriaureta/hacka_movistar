@@ -1,0 +1,115 @@
+{
+  "auc_trivial_1bit": 0.566040893436755,
+  "auc_offset_solo": 0.5654036295048164,
+  "auc_offset_mas_cliente": 0.586902829071292,
+  "aporte_personalizacion_auc": 0.021499199566475613,
+  "tasa_aceptacion_politica_historica": 0.37437151386597534,
+  "presupuesto_referencia": 10000,
+  "rango_suite_a_entre_variantes": {
+    "roc_auc": 0.001445,
+    "pr_auc": 0.001393,
+    "brier": 0.00012,
+    "log_loss": 0.00028,
+    "precision_05": 5.7e-05,
+    "recall_05": 3.9e-05,
+    "f1_05": 4.8e-05
+  },
+  "tabla_comparativa": [
+    {
+      "predictor": "offset_mas_cliente",
+      "A_roc_auc": 0.586903,
+      "A_pr_auc": 0.493082,
+      "B_ganancia_sobre_1bit": 0.020862,
+      "B_auc_estratif": 0.529124,
+      "B_recall@3": 0.943812,
+      "B_mrr": 0.725632,
+      "B_delta_recall3_vs_B3": 0.000993,
+      "B_pen_mes@10000": 1202393.0,
+      "B_ofertas_distintas_top1": 22.0
+    },
+    {
+      "predictor": "logistica_quantile",
+      "A_roc_auc": 0.589805,
+      "A_pr_auc": 0.494845,
+      "B_ganancia_sobre_1bit": 0.023764,
+      "B_auc_estratif": 0.532323,
+      "B_recall@3": 0.942868,
+      "B_mrr": 0.7244,
+      "B_delta_recall3_vs_B3": 4.8e-05,
+      "B_pen_mes@10000": 1193649.4,
+      "B_ofertas_distintas_top1": 22.0
+    },
+    {
+      "predictor": "B3_popularidad_segmento",
+      "A_roc_auc": 0.565747,
+      "A_pr_auc": 0.47798,
+      "B_ganancia_sobre_1bit": -0.000294,
+      "B_auc_estratif": 0.500322,
+      "B_recall@3": 0.94282,
+      "B_mrr": 0.725523,
+      "B_delta_recall3_vs_B3": 0.0,
+      "B_pen_mes@10000": 1198850.4,
+      "B_ofertas_distintas_top1": 22.0
+    },
+    {
+      "predictor": "logistica_robust",
+      "A_roc_auc": 0.591249,
+      "A_pr_auc": 0.496239,
+      "B_ganancia_sobre_1bit": 0.025208,
+      "B_auc_estratif": 0.534271,
+      "B_recall@3": 0.942699,
+      "B_mrr": 0.724611,
+      "B_delta_recall3_vs_B3": -0.000121,
+      "B_pen_mes@10000": 1193049.9,
+      "B_ofertas_distintas_top1": 22.0
+    },
+    {
+      "predictor": "logistica_standard",
+      "A_roc_auc": 0.591224,
+      "A_pr_auc": 0.49619,
+      "B_ganancia_sobre_1bit": 0.025183,
+      "B_auc_estratif": 0.534236,
+      "B_recall@3": 0.942142,
+      "B_mrr": 0.724709,
+      "B_delta_recall3_vs_B3": -0.000678,
+      "B_pen_mes@10000": 1191430.7,
+      "B_ofertas_distintas_top1": 22.0
+    },
+    {
+      "predictor": "B1_popularidad_oferta",
+      "A_roc_auc": 0.563561,
+      "A_pr_auc": 0.474577,
+      "B_ganancia_sobre_1bit": -0.00248,
+      "B_auc_estratif": 0.497457,
+      "B_recall@3": 0.942118,
+      "B_mrr": 0.724229,
+      "B_delta_recall3_vs_B3": -0.000702,
+      "B_pen_mes@10000": 1179281.0,
+      "B_ofertas_distintas_top1": 22.0
+    },
+    {
+      "predictor": "B2_regla_mt_primero",
+      "A_roc_auc": 0.56599,
+      "A_pr_auc": 0.43162,
+      "B_ganancia_sobre_1bit": -5.1e-05,
+      "B_auc_estratif": 0.499441,
+      "B_recall@3": 0.94081,
+      "B_mrr": 0.723176,
+      "B_delta_recall3_vs_B3": -0.002009,
+      "B_pen_mes@10000": 1305805.4,
+      "B_ofertas_distintas_top1": 22.0
+    },
+    {
+      "predictor": "B0_aleatorio",
+      "A_roc_auc": 0.49899,
+      "A_pr_auc": 0.373665,
+      "B_ganancia_sobre_1bit": -0.067051,
+      "B_auc_estratif": 0.49875,
+      "B_recall@3": 0.939503,
+      "B_mrr": 0.714849,
+      "B_delta_recall3_vs_B3": -0.003317,
+      "B_pen_mes@10000": 331171.4,
+      "B_ofertas_distintas_top1": 22.0
+    }
+  ]
+}

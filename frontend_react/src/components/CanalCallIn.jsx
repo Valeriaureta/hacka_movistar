@@ -13,11 +13,24 @@ import {
   Flame,
   Radio,
   Layers,
-  ArrowLeft
+  ArrowLeft,
+  Headphones,
+  FileText,
+  ShieldAlert,
+  ThumbsDown,
+  ThumbsUp,
+  Tag,
+  Activity,
+  AlertCircle,
+  BrainCircuit,
+  MessageSquareWarning,
+  Check
 } from 'lucide-react';
 import { MOCK_CLIENTES } from '../data/mockData';
 import { api } from '../services/api';
+import MotorAnalisisBadge from './MotorAnalisisBadge';
 import RebateModal from './RebateModal';
+import { SpeechTranscriber } from './SpeechTranscriber';
 
 const MOTIVOS_CALL_IN = [
   { id: 'consulta', label: '📋 Consulta de Saldo / Plan' },
@@ -37,6 +50,8 @@ export function CanalCallIn() {
   const [showNbo, setShowNbo] = useState(false);
   const [motivosSeleccionados, setMotivosSeleccionados] = useState(['📋 Consulta de Saldo / Plan']);
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [speechAnalisis, setSpeechAnalisis] = useState(null);
+  const [isSpeechAnalyzing, setIsSpeechAnalyzing] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -96,6 +111,42 @@ export function CanalCallIn() {
     }
   };
 
+  const handleAnalisisSpeechCompletado = async (payload) => {
+    setIsSpeechAnalyzing(true);
+    try {
+      const analisis = await api.analizarCallIn({
+        cliente_id: rawClient.cliente_id,
+        transcripcion: payload.transcripcion,
+        duracion_seg: payload.duracion_seg
+      });
+      setSpeechAnalisis(analisis);
+
+      // Si el LLM detecta insatisfacción severa o reclamo
+      if (analisis.cliente_insatisfecho || analisis.score_sentimiento < 2.5) {
+        let nuevoMotivo = '⚠️ Reclamo de Facturación';
+        if (analisis.topico_reclamo.includes('Averia') || analisis.topico_reclamo.includes('Fibra')) {
+          nuevoMotivo = '🛠️ Avería Técnica / Falla de Red';
+        }
+        setMotivosSeleccionados([nuevoMotivo]);
+        
+        // Evaluar NBO con el bloqueo correspondiente
+        const res = await api.evaluarNBO(rawClient.cliente_id, 'Call In', [nuevoMotivo], {
+          reclamo_activo: true,
+          bloqueo_presion_activo: true,
+          score_sentimiento: analisis.score_sentimiento
+        });
+        if (res && res.motor_nbo) {
+          setSelectedCliente(res);
+        }
+        setShowNbo(true);
+      }
+    } catch (error) {
+      console.error("Error en análisis speech Call In:", error);
+    } finally {
+      setIsSpeechAnalyzing(false);
+    }
+  };
+
   const handleResponderMT = async (valor) => {
     if (!selectedCliente?.recomendacion_id) {
       setFeedbackMsg({ type: 'error', text: 'No existe una recomendación activa para actualizar.' });
@@ -115,6 +166,19 @@ export function CanalCallIn() {
     }
   };
 
+  const getSentimientoBadge = (nivel, score) => {
+    if (score <= 2.0 || nivel === 'MUY_NEGATIVO') {
+      return { bg: 'bg-rose-500/20', text: 'text-rose-300', border: 'border-rose-500/40', label: '😡 Muy Molesto / Churn Inminente' };
+    }
+    if (score <= 3.0 || nivel === 'NEGATIVO') {
+      return { bg: 'bg-amber-500/20', text: 'text-amber-300', border: 'border-amber-500/40', label: '⚠️ Insatisfecho / Reclamo' };
+    }
+    if (score <= 4.0 || nivel === 'NEUTRO') {
+      return { bg: 'bg-blue-500/20', text: 'text-blue-300', border: 'border-blue-500/40', label: '😐 Neutro / Consulta' };
+    }
+    return { bg: 'bg-emerald-500/20', text: 'text-emerald-300', border: 'border-emerald-500/40', label: '😊 Satisfecho / Receptivo' };
+  };
+
   return (
     <div className="space-y-4 max-w-7xl mx-auto pb-6">
       
@@ -128,11 +192,11 @@ export function CanalCallIn() {
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-bold text-white leading-none">Módulo Call Center Inbound</h1>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-300 border border-rose-500/20">
-                Atención & Retención Receptiva
+                Speech-to-Text & Analizador Post-Hoc
               </span>
             </div>
             <p className="text-slate-400 text-xs mt-0.5">
-              Prescripción en vivo orientada a contención de Churn y fidelización rápida
+              Detección de motivo de reclamo, score de sentimiento e impacto en reglas NBO en tiempo real
             </p>
           </div>
         </div>
@@ -162,7 +226,7 @@ export function CanalCallIn() {
 
           <div className="hidden sm:flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1.5 rounded-xl border border-slate-800 text-[11px] font-mono text-rose-300">
             <Radio className="w-2.5 h-2.5 animate-ping text-rose-400" />
-            <span>Línea 104</span>
+            <span>Línea 104 Activa</span>
           </div>
         </div>
       </div>
@@ -177,10 +241,10 @@ export function CanalCallIn() {
           <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-3.5 shadow-xl space-y-2">
             <div className="flex items-center justify-between">
               <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider">
-                Llamadas Entrantes (En Espera)
+                Llamadas Entrantes (En Cola)
               </label>
               <span className="text-[10px] text-rose-400 font-mono">
-                {clientesFiltrados.length} en cola
+                {clientesFiltrados.length} llamadas
               </span>
             </div>
 
@@ -202,6 +266,7 @@ export function CanalCallIn() {
                       onClick={() => {
                         setSelectedCliente(cli);
                         setShowNbo(false);
+                        setSpeechAnalisis(null);
                         setMotivosSeleccionados(['📋 Consulta de Saldo / Plan']);
                       }}
                       className={`p-2.5 transition cursor-pointer flex items-center justify-between gap-2 ${
@@ -290,8 +355,8 @@ export function CanalCallIn() {
           )}
         </div>
 
-        {/* RIGHT COLUMN: Real-Time Retention/Up-sell NBO & Copilot Pitch (lg:col-span-8) */}
-        <div className="lg:col-span-8">
+        {/* RIGHT COLUMN: Speech Transcriber, LLM Post-Hoc & Retention NBO (lg:col-span-8) */}
+        <div className="lg:col-span-8 space-y-4">
           {selectedCliente ? (
             <div className="space-y-4 animate-fadeIn">
               
@@ -328,6 +393,96 @@ export function CanalCallIn() {
                 </div>
               )}
 
+              {/* 🎙️ WIDGET 1: Transcriptor Speech-to-Text en Vivo */}
+              <SpeechTranscriber
+                tipo="call_in"
+                clienteId={rawClient.cliente_id}
+                onAnalisisCompletado={handleAnalisisSpeechCompletado}
+                isAnalyzing={isSpeechAnalyzing}
+              />
+
+              {/* 🧠 WIDGET 2: Panel de Análisis Post-Hoc LLM (Call-In) */}
+              {speechAnalisis && (
+                <div className="bg-gradient-to-br from-slate-900 via-indigo-950/30 to-slate-900 border border-indigo-500/40 rounded-2xl p-5 shadow-2xl space-y-4 animate-fadeIn">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-indigo-500/20 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-400">
+                        <BrainCircuit className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                          Auditoría Post-Hoc con LLM (Call Inbound)
+                          <MotorAnalisisBadge motor={speechAnalisis.motor_analisis} />
+                        </h4>
+                        <p className="text-xs text-slate-400">Análisis cualitativo y cuantitativo de la conversación</p>
+                      </div>
+                    </div>
+
+                    {/* Badge de Sentimiento */}
+                    {(() => {
+                      const badge = getSentimientoBadge(speechAnalisis.nivel_sentimiento, speechAnalisis.score_sentimiento);
+                      return (
+                        <div className={`px-3 py-1.5 rounded-xl border text-xs font-bold ${badge.bg} ${badge.text} ${badge.border} flex items-center gap-2 shadow-sm`}>
+                          <span>{badge.label}</span>
+                          <span className="font-mono text-sm px-1.5 py-0.5 bg-black/40 rounded">
+                            {speechAnalisis.score_sentimiento} / 5.0
+                          </span>
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Variables Clasificadas */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
+                    {/* Variable 1: Topico de Reclamo */}
+                    <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800/80 space-y-1.5">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <Tag className="w-3.5 h-3.5 text-indigo-400" /> Tópico de Reclamo Clasificado:
+                      </span>
+                      <div className="text-sm font-bold text-white bg-slate-900/90 px-3 py-1.5 rounded-lg border border-slate-700/60 inline-block">
+                        🏷️ {speechAnalisis.topico_reclamo.replace(/_/g, ' ')}
+                      </div>
+                      <p className="text-slate-300 text-xs mt-1">
+                        <strong className="text-slate-400">Problema detectado:</strong> {speechAnalisis.descripcion_problema}
+                      </p>
+                    </div>
+
+                    {/* Variable 2: Score de Sentimiento & Diagnóstico */}
+                    <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800/80 space-y-1.5">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <Activity className="w-3.5 h-3.5 text-rose-400" /> Diagnóstico de Presión Comercial:
+                      </span>
+                      <div className={`text-xs font-bold px-3 py-1.5 rounded-lg border inline-flex items-center gap-1.5 ${
+                        speechAnalisis.cliente_insatisfecho 
+                          ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' 
+                          : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                      }`}>
+                        {speechAnalisis.cliente_insatisfecho ? <ShieldAlert className="w-4 h-4" /> : <Check className="w-4 h-4" />}
+                        {speechAnalisis.cliente_insatisfecho ? 'BLOQUEO DE VENTA ACTIVO (Priorizar Atención)' : 'CLIENTE APTO PARA NBO FIDELIZACIÓN'}
+                      </div>
+                      <p className="text-slate-300 text-xs mt-1">
+                        <strong className="text-slate-400">Recomendación IA:</strong> {speechAnalisis.accion_recomendada}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Puntos Críticos Extraídos */}
+                  {speechAnalisis.puntos_criticos && speechAnalisis.puntos_criticos.length > 0 && (
+                    <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800/80 text-xs">
+                      <span className="text-[11px] font-bold text-slate-400 block mb-1">
+                        Detonantes y Citas Clave de la Llamada:
+                      </span>
+                      <ul className="list-disc list-inside space-y-0.5 text-slate-300">
+                        {speechAnalisis.puntos_criticos.map((pt, idx) => (
+                          <li key={idx} className="italic">"{pt}"</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Panel de Tipificación Manual / Evaluación NBO */}
               {!showNbo ? (
                 <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 text-center shadow-lg space-y-5">
                   <div>
@@ -429,7 +584,7 @@ export function CanalCallIn() {
                       </div>
                       <button
                         onClick={() => setShowNbo(false)}
-                        className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1"
+                        className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer"
                       >
                         <ArrowLeft className="w-3 h-3" /> Modificar Motivo
                       </button>
@@ -448,78 +603,49 @@ export function CanalCallIn() {
                             <button 
                               key={idx} 
                               onClick={() => handleResponderMT(opc.preferencia || opc.valor)}
-                              className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition cursor-pointer"
+                              className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-md"
                             >
-                              {opc.texto || ({
-                                pagar_menos: 'Pagar menos',
-                                mas_gigas: 'Tener más gigas',
-                                datos_ilimitados: 'Datos ilimitados',
-                              }[opc.preferencia]) || opc.nombre_oferta}
+                              {opc.texto || opc.label}
                             </button>
                           ))}
                         </div>
                       </div>
                     )}
 
-                    {/* Header Oferta */}
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    {/* NBO Product Details */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80 mb-4">
                       <div>
-                        <h2 className="text-xl font-black text-white">{topNBO.nombre_oferta}</h2>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-2xl font-black text-emerald-400 font-mono">
-                            S/ {topNBO.precio_mensual || topNBO.precio_promocional}/mes
-                          </span>
-                          {topNBO.ahorro_pct > 0 && (
-                            <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                              -{topNBO.ahorro_pct}% Ahorro
-                            </span>
-                          )}
-                        </div>
+                        <h3 className="text-base font-bold text-white">{topNBO.nombre_oferta}</h3>
+                        <p className="text-xs text-slate-400">{topNBO.categoria_oferta || 'Convergencia / Retención'}</p>
                       </div>
-                    </div>
-
-                    {/* Copilot Speech */}
-                    <div className="mt-4 pt-3 border-t border-slate-800/80">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5" />
-                          Speech Sugerido de Retención / Fidelización
+                      <div className="text-right">
+                        <span className="text-xs text-slate-400 block">Precio Mensual</span>
+                        <span className="text-lg font-bold text-emerald-400 font-mono">
+                          S/ {topNBO.precio_mensual || topNBO.precio_promocional}/mes
                         </span>
-                        <span className="text-[10px] text-slate-500 font-mono">Reglas Motor v2</span>
-                      </div>
-
-                      <div className="bg-slate-950/90 border border-indigo-500/30 rounded-xl p-3.5 relative shadow-inner">
-                        <p className="text-slate-200 text-xs font-medium italic leading-relaxed">
-                          "{topNBO.vista_asesor?.speech?.texto || topNBO.speech_asesor || 'Estimado cliente, tenemos una oferta especial para mejorar su servicio manteniendo una tarifa preferencial.'}"
-                        </p>
                       </div>
                     </div>
 
-                    {/* Beneficios clave */}
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {(topNBO.beneficios || [topNBO.vista_asesor?.beneficio_principal]).filter(Boolean).map((b, i) => (
-                        <div key={i} className="flex items-center gap-2 text-xs text-slate-300 bg-slate-950/40 p-2 rounded-lg border border-slate-800">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                          <span className="truncate">{b}</span>
-                        </div>
-                      ))}
+                    {/* Speech Comercial Generado */}
+                    <div className="bg-slate-950/80 p-4 rounded-xl border border-slate-800 space-y-2">
+                      <span className="text-[11px] font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5" /> Speech de Retención Recomendado:
+                      </span>
+                      <p className="text-xs text-slate-200 leading-relaxed italic">
+                        "{topNBO.vista_asesor?.speech?.texto || topNBO.speech_asesor || 'Señor(a), por su fidelidad tenemos preparado un beneficio convergente exclusivo para unificar sus boletas con ahorro inmediato.'}"
+                      </p>
                     </div>
                   </div>
 
-                  {/* Alternativas Disponibles */}
+                  {/* Alternativas de Rebate Top-2 y Top-3 */}
                   {alternativas.length > 0 && (
-                    <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                          <Layers className="w-3.5 h-3.5 text-[#00a9e0]" />
-                          Alternativas Secundarias en caso de Objeción:
-                        </span>
-                        <span className="text-[10px] text-slate-500 font-mono">Opciones 2 y 3</span>
-                      </div>
-
+                    <div className="space-y-2">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                        Alternativas de Rebate (Top-2 & Top-3):
+                      </span>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {alternativas.map((alt, idx) => (
-                          <div key={alt.oferta_id || idx} className="p-3 bg-slate-950/70 rounded-xl border border-slate-800 space-y-1">
+                          <div key={idx} className="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 space-y-1">
                             <div className="flex items-center justify-between">
                               <span className="text-[10px] font-bold text-slate-400 font-mono">Opción #{idx + 2}</span>
                               <span className="text-xs font-bold text-emerald-400 font-mono">S/ {alt.precio_mensual || alt.precio_promocional}/m</span>

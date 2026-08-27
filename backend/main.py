@@ -6,10 +6,11 @@ from typing import Optional, List, Dict, Any
 try:
     from .nbo_router import NBORouter, DataLoader
     from .dashboard_router import router as dashboard_router
+    from .speech_router import router as speech_router
 except ImportError:  # Permite ejecutar también desde el directorio backend/
     from nbo_router import NBORouter, DataLoader
     from dashboard_router import router as dashboard_router
-# from Legacy_AI.ai_router import router as ai_router
+    from speech_router import router as speech_router
 
 app = FastAPI(
     title="Movi Nexo API — Recomendación Inteligente NBO 2.0",
@@ -18,7 +19,7 @@ app = FastAPI(
 )
 
 app.include_router(dashboard_router)
-# app.include_router(ai_router)
+app.include_router(speech_router)
 
 app.add_middleware(
     CORSMiddleware,

@@ -68,6 +68,8 @@ data/processed/scoring_top3_predictivo.csv
 .DS_Store
 Thumbs.db
 .vercel/
+frontend/
+catboost_info/
 
 # Variables de entorno: se ignoran los archivos reales,
 # pero la plantilla .env.example debe permanecer versionada.

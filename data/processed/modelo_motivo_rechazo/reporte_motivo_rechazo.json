@@ -1,0 +1,149 @@
+{
+  "universo": {
+    "filas_rechazo": 159204,
+    "clientes": 79005,
+    "clases": [
+      "mal_momento",
+      "no_confia",
+      "no_necesita",
+      "otro",
+      "precio",
+      "ya_tiene_similar"
+    ],
+    "distribucion": {
+      "precio": 0.3496,
+      "no_necesita": 0.1998,
+      "ya_tiene_similar": 0.1505,
+      "mal_momento": 0.1503,
+      "no_confia": 0.1004,
+      "otro": 0.0494
+    }
+  },
+  "protocolo": {
+    "split": "GroupShuffleSplit 80/20 por cliente_id",
+    "cv": "GroupKFold(5) OOF dentro de train",
+    "test_reservado_abierto": false,
+    "metrica_principal": "macro_f1"
+  },
+  "heuristica_produccion": {
+    "fuente": "backend/Motor/motor_reglas_negocio.py::motivo_rechazo_probable",
+    "clases_alcanzables": [
+      "no_confia",
+      "no_necesita",
+      "otro",
+      "precio"
+    ],
+    "clases_inalcanzables": [
+      "mal_momento",
+      "ya_tiene_similar"
+    ],
+    "porcion_universo_inalcanzable": 0.30059640586988934
+  },
+  "metricas_motivo": [
+    {
+      "predictor": "B0_clase_mayoritaria",
+      "macro_f1": 0.086313,
+      "balanced_accuracy": 0.166667,
+      "accuracy": 0.349415,
+      "top2_accuracy": NaN,
+      "weighted_f1": 0.180954,
+      "log_loss": NaN,
+      "clases_emitidas": 1
+    },
+    {
+      "predictor": "B1_prior_aleatoria",
+      "macro_f1": 0.165373,
+      "balanced_accuracy": 0.165375,
+      "accuracy": 0.218457,
+      "top2_accuracy": NaN,
+      "weighted_f1": 0.218641,
+      "log_loss": NaN,
+      "clases_emitidas": 6
+    },
+    {
+      "predictor": "B2_heuristica_produccion",
+      "macro_f1": 0.123215,
+      "balanced_accuracy": 0.167846,
+      "accuracy": 0.203743,
+      "top2_accuracy": NaN,
+      "weighted_f1": 0.181311,
+      "log_loss": NaN,
+      "clases_emitidas": 4
+    },
+    {
+      "predictor": "B3_moda_por_segmento",
+      "macro_f1": 0.086313,
+      "balanced_accuracy": 0.166667,
+      "accuracy": 0.349415,
+      "top2_accuracy": NaN,
+      "weighted_f1": 0.180954,
+      "log_loss": NaN,
+      "clases_emitidas": 1
+    },
+    {
+      "predictor": "M1_logistica_multinomial",
+      "macro_f1": 0.086377,
+      "balanced_accuracy": 0.166638,
+      "accuracy": 0.349321,
+      "top2_accuracy": 0.549604,
+      "weighted_f1": 0.181019,
+      "log_loss": 1.64022,
+      "clases_emitidas": 2
+    },
+    {
+      "predictor": "M2_lightgbm_multiclase",
+      "macro_f1": 0.094869,
+      "balanced_accuracy": 0.166967,
+      "accuracy": 0.345123,
+      "top2_accuracy": 0.537244,
+      "weighted_f1": 0.189677,
+      "log_loss": 1.657797,
+      "clases_emitidas": 6
+    }
+  ],
+  "metricas_accion": [
+    {
+      "predictor": "B0_clase_mayoritaria",
+      "accuracy_accion": 0.749203,
+      "macro_f1_accion": 0.285541,
+      "f1_programar_seguimiento": 0.0,
+      "f1_derivar_canal": 0.0
+    },
+    {
+      "predictor": "B1_prior_aleatoria",
+      "accuracy_accion": 0.593848,
+      "macro_f1_accion": 0.332241,
+      "f1_programar_seguimiento": 0.150526,
+      "f1_derivar_canal": 0.096633
+    },
+    {
+      "predictor": "B2_heuristica_produccion",
+      "accuracy_accion": 0.719925,
+      "macro_f1_accion": 0.299618,
+      "f1_programar_seguimiento": 0.0,
+      "f1_derivar_canal": 0.05917
+    },
+    {
+      "predictor": "B3_moda_por_segmento",
+      "accuracy_accion": 0.749203,
+      "macro_f1_accion": 0.285541,
+      "f1_programar_seguimiento": 0.0,
+      "f1_derivar_canal": 0.0
+    },
+    {
+      "predictor": "M1_logistica_multinomial",
+      "accuracy_accion": 0.749203,
+      "macro_f1_accion": 0.285541,
+      "f1_programar_seguimiento": 0.0,
+      "f1_derivar_canal": 0.0
+    },
+    {
+      "predictor": "M2_lightgbm_multiclase",
+      "accuracy_accion": 0.747187,
+      "macro_f1_accion": 0.288822,
+      "f1_programar_seguimiento": 0.009978,
+      "f1_derivar_canal": 0.00109
+    }
+  ],
+  "mejor_predictor": "B1_prior_aleatoria"
+}

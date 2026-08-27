@@ -1,0 +1,49 @@
+{
+  "universo_total_contactos": 300112,
+  "contactos_efectivos": 254618,
+  "contactos_pendientes_no_contactados": 45494,
+  "tasa_contactabilidad_base_pct": 84.84,
+  "metricas_modelos": [
+    {
+      "modelo": "Regresión Logística",
+      "roc_auc": 0.4944,
+      "pr_auc": 0.8452,
+      "brier_score": 0.1292,
+      "precision@0.5": 0.8477,
+      "recall@0.5": 1.0,
+      "f1@0.5": 0.9176
+    },
+    {
+      "modelo": "LightGBM",
+      "roc_auc": 0.5011,
+      "pr_auc": 0.8476,
+      "brier_score": 0.1292,
+      "precision@0.5": 0.8477,
+      "recall@0.5": 1.0,
+      "f1@0.5": 0.9176
+    }
+  ],
+  "benchmarks_politicas_canal": [
+    {
+      "politica_asignacion": "B0_Azar",
+      "probabilidad_contacto_esperada": 0.8489,
+      "tasa_contacto_esperada_pct": 84.89
+    },
+    {
+      "politica_asignacion": "B1_Canal_Mayoritario",
+      "probabilidad_contacto_esperada": 0.8487,
+      "tasa_contacto_esperada_pct": 84.87
+    },
+    {
+      "politica_asignacion": "B2_Regla_Canal_Mas_Usado",
+      "probabilidad_contacto_esperada": 0.8489,
+      "tasa_contacto_esperada_pct": 84.89
+    },
+    {
+      "politica_asignacion": "M1_Canal_Optimo_ML",
+      "probabilidad_contacto_esperada": 0.8506,
+      "tasa_contacto_esperada_pct": 85.06
+    }
+  ],
+  "lift_contacto_ml_vs_regla_pct": 0.21
+}

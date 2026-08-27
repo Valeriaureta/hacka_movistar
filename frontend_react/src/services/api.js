@@ -272,5 +272,110 @@ export const api = {
         }
       }
     };
+  },
+
+  async getDiagnosticoLLM() {
+    try {
+      await this.autoLogin();
+      const res = await fetch('/api/speech/diagnostico-llm', {
+        headers: this.token ? { 'Authorization': `Bearer ${this.token}` } : {}
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("No se pudo verificar el estado del LLM:", e.message);
+    }
+    return { conexion_ok: false, motor_activo: 'DESCONOCIDO', error: 'Backend inaccesible' };
+  },
+
+  async getSpeechSimulaciones() {
+    try {
+      await this.autoLogin();
+      const res = await fetch('/api/speech/simulaciones', {
+        headers: this.token ? { 'Authorization': `Bearer ${this.token}` } : {}
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("No se pudo cargar simulaciones desde backend:", e.message);
+    }
+    return null;
+  },
+
+  async analizarCallIn(payload) {
+    try {
+      await this.autoLogin();
+      const res = await fetch('/api/speech/analisis-call-in', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(this.token ? { 'Authorization': `Bearer ${this.token}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("Error al analizar Call In en backend:", e.message);
+    }
+    // Fallback local
+    return {
+      cliente_id: payload.cliente_id,
+      score_sentimiento: 2.1,
+      nivel_sentimiento: "NEGATIVO",
+      topico_reclamo: "Averia_Tecnica_Fibra_Red",
+      descripcion_problema: "Interrupción de servicio reportada en llamada.",
+      cliente_insatisfecho: true,
+      accion_recomendada: "Bloquear oferta comercial y derivar a soporte técnico.",
+      puntos_criticos: ["Cliente reporta incidencia activa"],
+      sugerencia_nbo: {
+        accion_nbo: "NO_OFRECER_BLOQUEO_PRESION",
+        bloqueo_presion_activo: true,
+        sugerencia_fidelizacion: "Movistar Total con descuento de rescate"
+      },
+      motor_analisis: {
+        proveedor: 'FALLBACK_FRONTEND',
+        modelo: 'Mock local del navegador',
+        latencia_ms: null,
+        es_llm_real: false,
+        etiqueta: 'Demo local (backend no disponible)',
+        error: 'El backend no respondió; se muestra un análisis de ejemplo.'
+      }
+    };
+  },
+
+  async analizarCallOut(payload) {
+    try {
+      await this.autoLogin();
+      const res = await fetch('/api/speech/analisis-call-out', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(this.token ? { 'Authorization': `Bearer ${this.token}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("Error al analizar Call Out en backend:", e.message);
+    }
+    // Fallback local
+    return {
+      cliente_id: payload.cliente_id,
+      resultado_oferta_inicial: "RECHAZADA",
+      motivo_rechazo_inicial: "Precio muy alto",
+      rebate_aplicado: true,
+      oferta_rebate_ofrecida: payload.oferta_rebate || "Movistar Total Plus",
+      efectividad_rebate: "ALTA_CONVERSION",
+      score_efectividad_rebate: 0.92,
+      argumentos_asesor_evaluados: ["Excelente pivote del asesor hacia ahorro convergente."],
+      oportunidad_mejora_asesor: null,
+      resumen_interaccion: "El cliente rechazó oferta inicial por precio pero aceptó Movistar Total tras presentar ahorro del 35%.",
+      motor_analisis: {
+        proveedor: 'FALLBACK_FRONTEND',
+        modelo: 'Mock local del navegador',
+        latencia_ms: null,
+        es_llm_real: false,
+        etiqueta: 'Demo local (backend no disponible)',
+        error: 'El backend no respondió; se muestra un análisis de ejemplo.'
+      }
+    };
   }
 };

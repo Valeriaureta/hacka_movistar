@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, Users, CheckCircle2, XCircle, ShieldCheck, 
   RefreshCw, Award, ArrowUpRight, BarChart3, PieChart as PieIcon,
-  Activity, Layers, Filter, Eye, AlertTriangle, ChevronRight, Zap
+  Activity, Layers, Filter, Eye, AlertTriangle, ChevronRight, Zap,
+  Headphones, BrainCircuit, MessageSquare, Tag, Radio
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, 
@@ -706,6 +707,110 @@ export default function DashboardE2E() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Sección Speech Analytics & LLM Post-Hoc */}
+      <div className={`p-6 rounded-3xl shadow-xl overflow-hidden border transition-colors ${
+        isDark ? 'bg-[#061426]/85 border-[#005C84]/35' : 'bg-white border-[#005C84]/15'
+      }`}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-indigo-500/20 border border-indigo-500/30">
+              <Headphones className="w-5 h-5 text-indigo-400" />
+            </div>
+            <div>
+              <h2 className={`text-xl font-black tracking-tight ${isDark ? 'text-white' : 'text-[#005C84]'}`}>
+                Speech Analytics & Calidad de Voz en Call Center (Post-Hoc LLM)
+              </h2>
+              <p className={`text-xs md:text-sm font-medium ${isDark ? 'text-slate-300' : 'text-[#515559]'}`}>
+                Clasificación automática de llamadas Call In (Reclamos & Sentimiento) y Call Out (Rechazos & Rebate)
+              </p>
+            </div>
+          </div>
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 font-mono w-fit">
+            Gemini & NLP Engine
+          </span>
+        </div>
+
+        {/* 3 KPI Cards de Speech */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#030914] border-[#005C84]/30' : 'bg-slate-50 border-slate-200'}`}>
+            <span className="text-[11px] font-bold text-slate-400 block mb-1">SCORE DE SENTIMIENTO CALL-IN</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-black text-emerald-400">3.8</span>
+              <span className="text-xs text-slate-400 font-mono">/ 5.0 (Calibrado)</span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">NPS Inbound recuperado tras contención técnica</p>
+          </div>
+
+          <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#030914] border-[#005C84]/30' : 'bg-slate-50 border-slate-200'}`}>
+            <span className="text-[11px] font-bold text-slate-400 block mb-1">TÓPICO DE RECLAMO PREDOMINANTE</span>
+            <div className="text-sm font-black text-rose-400 truncate">
+              🛠️ Avería Técnica / Fibra (42%)
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">Activa automáticamente regla de protección anti-presión</p>
+          </div>
+
+          <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#030914] border-[#005C84]/30' : 'bg-slate-50 border-slate-200'}`}>
+            <span className="text-[11px] font-bold text-slate-400 block mb-1">EFECTIVIDAD DE REBATE CALL-OUT</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-black text-indigo-400">78.4%</span>
+              <span className="text-xs text-emerald-400 font-bold">+12% vs. sin IA</span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">Conversión hacia Movistar Total tras objeción de precio</p>
+          </div>
+        </div>
+
+        {/* 2 Columnas de Detalle Call In vs Call Out */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Call In Tópicos */}
+          <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#030914]/80 border-[#005C84]/20' : 'bg-slate-50/80 border-slate-200'}`}>
+            <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5 ${isDark ? 'text-rose-400' : 'text-rose-600'}`}>
+              <Tag className="w-3.5 h-3.5" /> Distribución de Tópicos de Reclamo (Call In)
+            </h4>
+            <div className="space-y-2 text-xs">
+              {[
+                { topico: 'Avería Técnica / Fibra Óptica', pct: 42, color: 'bg-rose-500' },
+                { topico: 'Facturación / Cobro Indebido', pct: 28, color: 'bg-amber-500' },
+                { topico: 'Portabilidad / Solicitud de Baja', pct: 18, color: 'bg-purple-500' },
+                { topico: 'Consultas Comerciales / Otros', pct: 12, color: 'bg-blue-500' }
+              ].map((item, idx) => (
+                <div key={idx} className="space-y-1">
+                  <div className="flex justify-between text-[11px]">
+                    <span className="font-semibold text-slate-300">{item.topico}</span>
+                    <span className="font-mono text-slate-400 font-bold">{item.pct}%</span>
+                  </div>
+                  <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div className={`${item.color} h-1.5 rounded-full`} style={{ width: `${item.pct}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Call Out Rebates */}
+          <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#030914]/80 border-[#005C84]/20' : 'bg-slate-50/80 border-slate-200'}`}>
+            <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5 ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>
+              <BrainCircuit className="w-3.5 h-3.5" /> Efectividad del Rebate según Objeción (Call Out)
+            </h4>
+            <div className="space-y-2 text-xs">
+              {[
+                { motivo: 'Precio muy alto -> Pivote a Movistar Total (35% Ahorro)', conv: '84.2%', badge: 'Alta Conversión', color: 'text-emerald-400' },
+                { motivo: 'Compromiso con competencia -> Oferta Línea Familiar', conv: '15.0%', badge: 'Rechazo Fuerte', color: 'text-rose-400' },
+                { motivo: 'Falta de tiempo -> Agendamiento Callback NBO', conv: '62.5%', badge: 'Seguimiento', color: 'text-amber-400' },
+                { motivo: 'No necesita más gigas -> Migración a Plan Base', conv: '48.0%', badge: 'Moderado', color: 'text-blue-400' }
+              ].map((item, idx) => (
+                <div key={idx} className={`p-2.5 rounded-xl border ${isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200'} flex items-center justify-between`}>
+                  <div className="min-w-0 pr-2">
+                    <p className="text-[11px] font-medium text-slate-300 leading-tight">{item.motivo}</p>
+                    <span className="text-[10px] text-slate-400">{item.badge}</span>
+                  </div>
+                  <span className={`text-xs font-black font-mono shrink-0 ${item.color}`}>{item.conv}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
