@@ -1,0 +1,5 @@
+politica_asignacion,probabilidad_contacto_esperada,tasa_contacto_esperada_pct
+B0_Azar,0.8489,84.89
+B1_Canal_Mayoritario,0.8487,84.87
+B2_Regla_Canal_Mas_Usado,0.8489,84.89
+M1_Canal_Optimo_ML,0.8506,85.06

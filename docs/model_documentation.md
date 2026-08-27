@@ -6,9 +6,10 @@ Este documento describe la arquitectura, variables, preprocesamiento y uso del m
 
 ## 1. Arquitectura y Enfoque del Modelo
 
-- **Objetivo:** Predecir la probabilidad condicional de aceptación $P(\text{Aceptación} = 1 \mid \text{Cliente, Oferta, Canal})$ para cualquier par $(\text{Cliente}_i, \text{Oferta}_j)$ disponible en el catálogo.
-- **Tipo de Algoritmo:** Modelo de clasificación probabilística (Regresión Logística / Gradient Boosting / XGBoost) calibrado para inferencia rápida a escala sobre el universo de clientes.
-- **Artefacto de Serialización:** `modelo_logistico_final.joblib` (compatible con `scikit-learn` y `joblib`).
+- **Objetivo Predictivo:** Predecir la probabilidad de aceptación $\hat{P}(\text{Aceptación} = 1 \mid \text{Cliente, Oferta, Canal})$ sobre el universo de ofertas primarias (sin rebates).
+- **Objetivo de Optimización (Ranking):** Ordenar por **Valor Esperado Económico**, maximizando el ingreso capturado: $\text{EV} = \hat{P}(\text{Aceptación}) \times \text{precio\_mensual}$.
+- **Tipo de Algoritmo:** Modelo de clasificación probabilística (Regresión Logística Calibrada / LightGBM) optimizado para inferencia rápida.
+- **Artefacto de Serialización:** `modelo_propension_v2_candidato.joblib` (versión `v2_generalizable_31`).
 
 ---
 
@@ -44,7 +45,7 @@ from inferencia_modelo import calcular_score
 import pandas as pd
 
 # datos_evaluar contiene la combinación de clientes y ofertas
-df_scored = calcular_score(datos_evaluar, ruta_modelo="Modelo/modelo_logistico_final.joblib")
+df_scored = calcular_score(datos_evaluar, ruta_modelo="Modelo/modelo_propension_v2_candidato.joblib")
 # Retorna el DataFrame con la columna agregada 'score_aceptacion'
 ```
 
@@ -59,6 +60,15 @@ df_scored = calcular_score(datos_evaluar, ruta_modelo="Modelo/modelo_logistico_f
 
 Para cada cliente:
 1. Se evalúa su probabilidad de aceptación frente a todas las ofertas válidas del catálogo.
-2. Se aplican reglas de negocio (priorización de Movistar Total para clientes `elegible_mt = True`).
-3. Se seleccionan las **3 mejores ofertas** ordenadas por score de propensión y valor esperado.
-4. Se asigna el **canal sugerido de contacto** y la estrategia de **rebate** en caso de rechazo.
+2. Se transforma la probabilidad pura a **Valor Esperado (EV)** usando la tarifa (`precio_mensual`). El score base para ranking en el motor adopta una escala $0-1$ mediante la constante de normalización: $\text{Score}_{EV} = \hat{P} \times (\text{precio\_mensual} / 200.0)$.
+3. Se aplican reglas de negocio (priorización de Movistar Total para clientes `elegible_mt = True`, y penalizaciones operativas).
+4. Se seleccionan las **3 mejores ofertas** ordenadas por el Score EV ajustado.
+5. Se asigna el **canal sugerido de contacto** y la estrategia de **rebate** en caso de rechazo.
+
+---
+
+## 5. Próximos Pasos: Inferencia de Contactabilidad Multicanal (Fase 2)
+
+Actualmente la orquestación asume canales fijos por reglas históricas (`canal_mas_usado`). En la siguiente iteración se incorporará:
+- **Modelo Predictivo de Canal:** $P(\text{contactado} \mid \text{cliente}, \text{canal})$.
+- **Artefacto Independiente:** Un joblib propio de contactabilidad que permitirá pre-seleccionar $\arg\max_{\text{canal}} P$ antes de ejecutar el scoring de propensión.

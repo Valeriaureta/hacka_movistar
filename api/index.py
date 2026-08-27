@@ -1,9 +1,5 @@
-import sys
-from pathlib import Path
+"""Punto de entrada ASGI para desplegar MoviNexo en Vercel."""
 
-# Asegurar que el directorio raíz está en sys.path para importaciones
-sys.path.append(str(Path(__file__).parent.parent))
+from backend.main import app
 
-from app.main import app
-
-# Este archivo es el punto de entrada para Vercel Serverless Functions
+__all__ = ["app"]

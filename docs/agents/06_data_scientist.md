@@ -7,6 +7,16 @@
 
 ---
 
+## ⚠️ 0. LEER PRIMERO — Diagnóstico ya ejecutado
+
+Antes de proponer mejoras al modelo de propensión, consultar [`docs/diagnostico_modelos.md`](../diagnostico_modelos.md).
+
+Ese documento cierra con evidencia empírica varias líneas de trabajo que este marco sugiere en §2.2 (barrido de hiperparámetros, cambio de algoritmo, SMOTE / class weights) y demuestra que **el techo de ROC-AUC del dataset es ~0.59 por ausencia de señal, no por sub-ajuste**. También documenta trampas del dataset (`es_rebate` = fuga perfecta, `pendiente` ≠ rechazo) y la palanca que sí funciona (rankear por valor esperado, +33.5% verificado).
+
+Las recomendaciones de §2.2 sobre `AUC-ROC` y desbalance de clases quedan **matizadas** por ese diagnóstico.
+
+---
+
 ## 🛑 1. Reglas Inviolables Heredadas de AGENTS.md
 
 1. **MODIFICACIÓN CONTROLADA DE `EDA/`:** Solo lectura e inspección. Para modificar cualquier notebook, debe detallar qué y por qué, indicando las celdas afectadas, y solicitar aprobación explícita al usuario.

@@ -11,14 +11,17 @@ Este archivo define el marco contextual, las restricciones inviolables y las dir
 ## 🛑 1. Reglas Inviolables (CRITICAL RESTRICTIONS)
 
 1. **MODIFICACIÓN CONTROLADA DE `EDA/`:**
-   - Los notebooks dentro del directorio `EDA/` (`EDA_campañas.ipynb`, `EDA_catalogo_ofertas.ipynb`, `EDA_clientes.ipynb`, `EDA_integrado_target.ipynb`) son archivos sensibles de análisis exploratorio.
+   - Los notebooks dentro del directorio `EDA/` (actualmente `EDA_logistica_corregida.ipynb`) son archivos sensibles de análisis exploratorio. La regla aplica a **todo** notebook presente en el directorio, no a una lista fija.
    - **Antes de cualquier modificación**, el agente debe:
      1. Describir con claridad **qué** se va a modificar y **por qué**.
      2. Indicar las celdas o secciones específicas afectadas.
      3. **Solicitar y obtener autorización expresa del usuario** antes de proceder.
    - Sin autorización explícita, solo se permite la lectura e inspección.
-2. **NO TOCAR EL CÓDIGO DE `inferencia_modelo.py`:**
-   - Queda estrictamente prohibido modificar o refactorizar el archivo raíz `inferencia_modelo.py` y `Modelo/inferencia_modelo.py`. El esquema de entrada (33 columnas `COLUMNAS_MODELO`) y la función `calcular_score` son contratos de interfaz inmutables.
+2. **NO TOCAR EL CÓDIGO DE `backend/inferencia_modelo.py`:**
+   - Queda estrictamente prohibido modificar o refactorizar `backend/inferencia_modelo.py`. El esquema de entrada (33 columnas `COLUMNAS_MODELO`) y la función `calcular_score(datos, ruta_modelo=None)` son contratos de interfaz inmutables.
+   - **Artefacto vigente del modelo:** `backend/Modelo/modelo_propension_v2_candidato.joblib` (versión `v2_generalizable_31`). El nombre `modelo_logistico_final.joblib` que aparece en documentación antigua está **obsoleto** y el archivo no existe.
+   - **Consecuencia operativa:** el `ruta_modelo=None` por defecto de `calcular_score` apunta al artefacto obsoleto y falla. Todo llamador debe pasar `ruta_modelo` explícito, como hace `Motor/motor_oficial.py` vía `DEFAULT_MODEL_PATH`.
+   - `backend/inferencia.py` es un duplicado sin uso y con ruta de modelo rota. **No usarlo como referencia ni importarlo.**
 3. **RESPETAR LA ESTRUCTURA DE DATOS ([Cookiecutter Data Science](https://cookiecutter-data-science.drivendata.org/)):**
    - Todos los datos deben residir en `data/` (`raw/`, `interim/`, `processed/`, `external/`). Los archivos dentro de `data/raw/` son inmutables y de solo lectura. Ningún script debe sobreescribir los CSVs crudos.
 
@@ -65,11 +68,25 @@ Siguiendo el marco estratégico de innovación (*Design Thinking + IA Estratégi
 
 ```
 d:\hacka_movistar\
+├── backend/                    # API FastAPI (punto de entrada: main.py, puerto 8000)
+│   ├── inferencia_modelo.py    # [INMUTABLE] calcular_score() + COLUMNAS_MODELO (33)
+│   ├── Modelo/                 # [INMUTABLE] modelo_propension_v2_candidato.joblib
+│   ├── Motor/                  # Motor NBO híbrido y auditable
+│   │   ├── motor_oficial.py            # Orquesta reglas + scoring + Top-3
+│   │   └── motor_reglas_negocio.py     # Reglas de negocio puras (RULES_VERSION)
+│   ├── nbo_router.py           # Endpoints NBO + DataLoader
+│   ├── dashboard_router.py     # Endpoints de métricas y funnel E2E
+│   ├── Legacy_AI/              # Servicio GenAI multi-proveedor (desactivado en main.py)
+│   └── run_backend.bat         # Arranque local (espera venv en backend/venv)
+│
+├── frontend_react/             # Frontend real: React + Vite (src/, components/, services/)
+│
 ├── data/
 │   ├── external/               # Fuentes externas
 │   ├── interim/                # Datos intermedios de pipelines
-│   ├── processed/              # Datasets finales (scoring_top3_predictivo.csv)
-│   └── raw/                    # Datasets crudos inmutables (clientes, ofertas, historial)
+│   ├── processed/              # Salidas del pipeline (modelo_v2/: métricas y reporte)
+│   ├── raw/                    # Datasets crudos inmutables (clientes, ofertas, historial)
+│   └── interacciones_e2e.csv   # Registro de trazabilidad del funnel
 │
 ├── docs/                       # Documentación técnica, metodológica y de negocio
 │   ├── agents/                 # Marcos de acción para agentes especializados del MVP
@@ -80,19 +97,25 @@ d:\hacka_movistar\
 │   │   ├── 05_analista_ciberseguridad.md # Ciberseguridad: fuga de secretos, cookies, blindaje
 │   │   └── 06_data_scientist.md        # Data Scientist: evaluación EDA, modelos predictivos y XAI
 │   ├── data_dictionary.md      # Diccionario detallado de variables y tipos
+│   ├── diagnostico_modelos.md  # [LEER ANTES DE MODELAR] Diagnóstico: techo de señal,
+│   │                           #   resultados negativos cerrados y trampas del dataset
 │   ├── eda_findings.md         # Resumen de hallazgos del análisis exploratorio
-│   ├── model_documentation.md  # Arquitectura del modelo y especificación del pipeline
+│   ├── model_documentation.md  # [DESACTUALIZADO] Describe el modelo logístico anterior
 │   ├── nbo_strategy.md         # Estrategia comercial NBO, Movistar Total y Rebate
 │   ├── business_context.md     # Marco contextual, métricas operativas y visión estratégica
+│   ├── pitch_3min.md           # [DESCARTADO] Borrador antiguo. No usar como referencia.
+│   ├── pitch_5min.md           # Guion vigente del pitch (5 min) + cifras autorizadas y Q&A
 │   └── output_modelo.pdf       # Reporte ejecutivo del desafío
 │
 ├── EDA/                        # [MODIFICACIÓN CONTROLADA] Notebooks de exploración y análisis
-├── Modelo/                     # [INMUTABLE] Scripts y artefactos de inferencia
-├── inferencia_modelo.py        # [INMUTABLE] Función principal calcular_score()
+├── guia_desafio_NBO_movistar.md # Bases oficiales del Desafío 02
+├── .env.example                # Plantilla de variables de entorno
 ├── requirements.txt            # Dependencias del proyecto
 ├── AGENTS.md                   # Este archivo (Guía operativa de agentes)
 └── README.md                   # Presentación ejecutiva y técnica del repositorio
 ```
+
+> **Residuos sin trackear (ignorar, no extender):** `app/` (solo `__pycache__`), `frontend/` (Next.js abandonado; el frontend vigente es `frontend_react/`), `catboost_info/`, `.vercel/`.
 
 ---
 
@@ -113,10 +136,11 @@ d:\hacka_movistar\
 ## 🚀 6. Guía de Ejecución para Nuevas Tareas
 
 Cuando un agente reciba solicitudes de mejora o extensiones (por ejemplo, construir interfaces para asesores, agentes generativos de speech comercial o dashboards de monitoreo):
-1. **Consultar primero `docs/` y `data/raw/`** para respetar el schema y contexto.
-2. **Utilizar el entorno virtual** configurado (`venv`) con dependencias de `requirements.txt`.
-3. **Asegurar compatibilidad con el pipeline de inferencia** (`inferencia_modelo.py`).
+1. **Consultar primero `docs/` y `data/raw/`** para respetar el schema y contexto. Ojo: `dataset_clientes.csv` e `historial_campanias.csv` están en `.gitignore` por peso; su esquema vive en [`docs/data_dictionary.md`](docs/data_dictionary.md).
+2. **Utilizar el entorno virtual** ubicado en `backend/venv` (Python 3.11) con dependencias de `requirements.txt`. El arranque local es `backend/run_backend.bat`, que lo activa y levanta `uvicorn main:app` en el puerto 8000.
+3. **Asegurar compatibilidad con el pipeline de inferencia** (`backend/inferencia_modelo.py`), pasando siempre `ruta_modelo` explícito.
 4. **Documentar siempre los entregables** en `docs/` y mantener actualizados los enlaces relativos en formato markdown.
+5. **Verificar antes de citar:** este archivo y `docs/` han quedado desfasados del código en el pasado. Ante una discrepancia entre documentación y código, **el código manda**; corrige el documento en el mismo cambio.
 
 ---
 

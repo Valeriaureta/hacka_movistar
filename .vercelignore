@@ -1,0 +1,16 @@
+.git/
+.tools/
+.python-runtime/
+.venv/
+venv/
+backend/venv/
+frontend_react/node_modules/
+frontend_react/dist/
+data/raw/dataset_clientes.csv
+data/raw/historial_campanias.csv
+data/interacciones_e2e.csv
+data/interim/
+data/external/
+data/processed/modelo_v2/
+**/__pycache__/
+*.pyc

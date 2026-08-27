@@ -1,0 +1,3 @@
+modelo,roc_auc,pr_auc,brier_score,precision@0.5,recall@0.5,f1@0.5
+Regresión Logística,0.4944,0.8452,0.1292,0.8477,1.0,0.9176
+LightGBM,0.5011,0.8476,0.1292,0.8477,1.0,0.9176

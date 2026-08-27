@@ -1,41 +1,78 @@
-# Archivos de entorno y secretos
+# ==========================================
+# Secretos y Variables de Entorno (CRÍTICO)
+# ==========================================
 .env
 .env.local
 .env.*.local
-*.env
-
-# Credenciales y artefactos sensibles
 *.pem
 *.key
-*.cert
-cookies.txt
-*.session
-token.json
-credentials.json
 
-# Dependencias y entornos
-node_modules/
+# ==========================================
+# Python / Backend
+# ==========================================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+backend/venv/
+backend/env/
+.venv/
 env/
 venv/
 ENV/
-.venv/
-.next/
-dist/
 build/
-.vercel
-catboost_info/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# IDEs & OS
-.vscode/
+# ==========================================
+# Frontend / React / Vite
+# ==========================================
+node_modules/
+.tools/
+frontend_react/node_modules/
+frontend_react/dist/
+frontend_react/dist-ssr/
+frontend_react/.vite/
+*.local
+
+# ==========================================
+# Datos pesados y logs temporales
+# ==========================================
+data/interim/*.jsonl
+data/interim/*.csv
+# Datasets masivos (>15MB) para evitar exceder límites de GitHub:
+data/raw/historial_campanias.csv
+data/raw/dataset_clientes.csv
+data/processed/scoring_top3_predictivo.csv
+
+# ==========================================
+# IDEs y Sistema Operativo
+# ==========================================
 .idea/
+.vscode/
 *.swp
 *.swo
 .DS_Store
 Thumbs.db
+.vercel/
+frontend/
+catboost_info/
 
-.vercel
+# Variables de entorno: se ignoran los archivos reales,
+# pero la plantilla .env.example debe permanecer versionada.
+.env
+.env.*
+!.env.example

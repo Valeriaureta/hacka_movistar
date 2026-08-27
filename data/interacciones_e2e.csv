@@ -1,0 +1,41 @@
+id,timestamp,cliente_id,canal,oferta_id,oferta_nombre,es_movistar_total,estado,motivo_rechazo,precio_oferta,ahorro_pct
+G001,2026-08-22 10:15:00,CLI000010,Tienda,OF020,Movistar Total Basico,True,ACEPTADA,,119.92,20.0
+G002,2026-08-22 10:45:00,CLI000012,Call Out,OF004,Plan Movil Ilimitado,False,RECHAZADA,Precio muy alto,99.9,0.0
+G003,2026-08-22 11:20:00,CLI000015,WhatsApp,OF021,Movistar Total Plus,True,ACEPTADA,,123.44,35.0
+G004,2026-08-22 11:55:00,CLI000020,Digital,OF002,Plan Movil Plus 25GB,False,RECHAZADA,Compromiso con otro operador,59.9,0.0
+G005,2026-08-22 12:10:00,CLI000025,Call In,OF020,Movistar Total Basico,True,ACEPTADA,,119.92,20.0
+G006,2026-08-22 12:30:00,CLI000030,Tienda,OF015,Equipo Smartphone Gama Alta,False,RECHAZADA,No necesita el servicio,90.0,0.0
+G0007,2026-08-22 13:39:13,CLI000099,Tienda,OF020,Movistar Total Basico,True,ACEPTADA,,119.92,20.0
+G0008,2026-08-22 17:01:39,CLI000001,Tienda,OF004,Plan Movil Ilimitado,False,RECHAZADA,Mala experiencia previa,99.9,0.0
+G0009,2026-08-22 17:01:45,CLI000001,Tienda,OF004,Plan Movil Ilimitado,False,ACEPTADA,,99.9,0.0
+G0010,2026-08-22 17:10:35,CLI-101452,Call Out,UPG-FIBRA-1GBPS,Upgrade Negocios: Fibra 1 Gbps + Seguridad Cloud,False,RECHAZADA,No necesita el servicio,249.9,15.0
+G0011,2026-08-22 17:10:50,CLI000013,Call Out,OF022,Movistar Total Max,False,RECHAZADA,No necesita el servicio,114.95,50.0
+G0012,2026-08-22 17:24:54,CLI-100234,Tienda,MT-DUO-PRO-200,Movistar Total Dúo Pro 200 Mbps,False,ACEPTADA,,119.9,35.0
+G0013,2026-08-22 18:16:46,CLI000001,Digital,OF004,Plan Movil Ilimitado,False,ACEPTADA,,99.9,0.0
+G0014,2026-08-22 20:14:59,CLI-100234,WhatsApp,MT-DUO-PRO-200,Movistar Total Dúo Pro 200 Mbps,False,ACEPTADA,,119.9,35.0
+G0015,2026-08-22 20:14:59,CLI-100234,WhatsApp,MT-DUO-PRO-200,Movistar Total Dúo Pro 200 Mbps,False,ACEPTADA,,119.9,35.0
+G0016,2026-08-22 20:15:07,CLI-100234,WhatsApp,MT-DUO-PRO-200,Movistar Total Dúo Pro 200 Mbps,False,RECHAZADA,Precio muy alto,119.9,35.0
+G0017,2026-08-22 22:33:31,CLI-100234,Tienda,MT-DUO-PRO-200,Movistar Total Dúo Pro 200 Mbps,False,ACEPTADA,,119.9,35.0
+G0018,2026-08-22 22:34:03,CLI-100234,Tienda,MT-DUO-PRO-200,Movistar Total Dúo Pro 200 Mbps,False,ACEPTADA,,119.9,35.0
+G0019,2026-08-24 18:09:12,CLI000001,Call Out,OF004,Plan Movil Ilimitado,False,ACEPTADA,,99.9,0.0
+G0020,2026-08-24 20:01:07,CLI-100234,Tienda,MT-DUO-PRO-200,Movistar Total Dúo Pro 200 Mbps,False,RECHAZADA,Precio muy alto,119.9,35.0
+G0021,2026-08-24 20:27:42,CLI000002,WhatsApp,OF004,Plan Movil Ilimitado,False,ACEPTADA,,99.9,0.0
+G0022,2026-08-24 21:01:49,CLI000005,Digital,OF015,Equipo Smartphone Gama Alta,False,ACEPTADA,,90.0,0.0
+G0023,2026-08-24 23:10:54,CLI000001,Tienda,OF004,Plan Movil Ilimitado,False,RECHAZADA,Mala experiencia previa,99.9,0.0
+G0024,2026-08-26 16:55:57,CLI000001,WhatsApp,OF017,Paquete Streaming Video,False,ACEPTADA,,0.0,0.0
+G0025,2026-08-26 18:46:38,CLI000001,Call Out,OF018,Paquete Seguridad Digital,True,ACEPTADA,,12.9,35.0
+G0026,2026-08-26 18:46:41,CLI000001,Call Out,OF018,Paquete Seguridad Digital,True,ACEPTADA,,12.9,35.0
+G0027,2026-08-26 18:56:48,CLI000001,Call Out,OF018,Paquete Seguridad Digital,True,ACEPTADA,,12.9,35.0
+G0028,2026-08-26 18:56:51,CLI000001,Call Out,OF018,Paquete Seguridad Digital,True,ACEPTADA,,12.9,35.0
+G0029,2026-08-26 19:44:34,CLI000014,Call Out,OF010,Internet + TV + Fijo Hogar,False,RECHAZADA,Precio muy alto,0.0,0.0
+G0030,2026-08-26 19:45:25,CLI000014,Call Out,OF016,Router WiFi 6,True,ACEPTADA,,15.0,35.0
+G0031,2026-08-26 20:27:41,CLI000001,Call Out,OF008,Internet + TV Hogar,True,ACEPTADA,,129.9,35.0
+G0032,2026-08-26 20:28:34,CLI000001,Call Out,OF008,Internet + TV Hogar,True,ACEPTADA,,129.9,35.0
+G0033,2026-08-26 20:28:52,CLI000002,Call Out,OF008,Internet + TV Hogar,True,ACEPTADA,,129.9,35.0
+G0034,2026-08-26 20:28:57,CLI000002,Call Out,OF008,Internet + TV Hogar,True,ACEPTADA,,129.9,35.0
+G0035,2026-08-26 21:18:03,CLI000001,Call Out,OF008,Internet + TV Hogar,True,ACEPTADA,,129.9,35.0
+G0036,2026-08-26 21:18:34,CLI000001,Digital,OF010,Internet + TV + Fijo Hogar,False,ACEPTADA,,159.9,0.0
+G0037,2026-08-26 21:32:37,CLI000006,Call In,OF010,Internet + TV + Fijo Hogar,False,ACEPTADA,,159.9,0.0
+G0038,2026-08-26 22:12:28,CLI000001,Call Out,OF008,Internet + TV Hogar,True,ACEPTADA,,129.9,35.0
+G0039,2026-08-26 23:32:05,CLI000001,Call Out,OF008,Internet + TV Hogar,True,ACEPTADA,,129.9,35.0
+G0040,2026-08-26 23:35:27,CLI000001,Call Out,OF008,Internet + TV Hogar,True,ACEPTADA,,129.9,35.0
