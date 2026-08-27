@@ -76,3 +76,5 @@ catboost_info/
 .env
 .env.*
 !.env.example
+.vercel
+.env*

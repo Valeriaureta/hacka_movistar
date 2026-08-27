@@ -596,7 +596,7 @@ export function CanalCallOut() {
                   <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${
                     isDark ? 'text-[#00C6D7]' : 'text-[#005C84]'
                   }`}>
-                    <Sparkles className="w-3.5 h-3.5" /> Pitch Telefónico Recomendado (Movi Nexo):
+                    <Sparkles className="w-3.5 h-3.5" /> Pitch Telefónico Recomendado (MoviNexo):
                   </span>
                 </div>
                 <p className={`text-xs leading-relaxed italic p-3.5 rounded-xl border font-medium ${

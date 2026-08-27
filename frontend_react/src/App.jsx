@@ -100,15 +100,15 @@ function MainApp() {
       }`}>
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           
-          {/* Logo & Branding Movi Nexo */}
+          {/* Logo & Branding MoviNexo */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-white p-1.5 shadow-md shadow-black/10 flex items-center justify-center border border-slate-100 dark:border-white/10">
-              <img src="/logo.svg" alt="Movi Nexo Logo" className="w-full h-full object-contain" />
+              <img src="/logo.svg" alt="MoviNexo Logo" className="w-full h-full object-contain" />
             </div>
             <div>
               <div className="flex items-center">
                 <span className={`font-extrabold text-base tracking-tight ${isDark ? 'text-white' : 'text-[#005C84]'}`}>
-                  Movi <span className={`font-light ${isDark ? 'text-[#00C6D7]' : 'text-[#005C84]'}`}>Nexo</span>
+                  Movi<span className={`font-light ${isDark ? 'text-[#00C6D7]' : 'text-[#005C84]'}`}>Nexo</span>
                 </span>
               </div>
             </div>

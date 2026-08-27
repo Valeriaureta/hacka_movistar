@@ -120,10 +120,10 @@ export default function LoginSSO({ onLogin }) {
           
           <div className="flex items-center justify-center gap-3 mb-2">
             <div className="w-14 h-14 rounded-2xl bg-white p-2 flex items-center justify-center shadow-lg shadow-black/15 border border-slate-100 dark:border-white/10">
-              <img src="/logo.svg" alt="Movi Nexo Logo" className="w-full h-full object-contain" />
+              <img src="/logo.svg" alt="MoviNexo Logo" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-              <span className={isDark ? 'text-white' : 'text-[#005C84]'}>Movi</span>{' '}
+              <span className={isDark ? 'text-white' : 'text-[#005C84]'}>Movi</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00C6D7] via-teal-400 to-[#7AB800]">
                 Nexo
               </span>

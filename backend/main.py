@@ -13,7 +13,7 @@ except ImportError:  # Permite ejecutar también desde el directorio backend/
     from speech_router import router as speech_router
 
 app = FastAPI(
-    title="Movi Nexo API — Recomendación Inteligente NBO 2.0",
+    title="MoviNexo API — Recomendación Inteligente NBO 2.0",
     description="Backend de inferencia y entrega NBO omnicanal en tiempo real para Movistar Perú.",
     version="2.0.0"
 )
@@ -40,7 +40,7 @@ class AuthLogin(BaseModel):
 def root():
     return {
         "status": "online",
-        "service": "Movi Nexo API — Personalización NBO 2.0",
+        "service": "MoviNexo API — Personalización NBO 2.0",
         "version": "2.0.0",
         "model": "modelo_propension_v2_candidato.joblib",
         "runtime": loader.runtime_info(),
